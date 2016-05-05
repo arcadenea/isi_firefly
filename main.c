@@ -12,7 +12,7 @@ const char *resultado;
 int n_luciernagas = 1000;/*numero total de luciernagas*/
 int n_gen = 1000;/*numero total de generaciones*/
 
-char *array_letras;/*letras que no se repiten*/
+char array_letras[10];/*letras que no se repiten*/
 int cant_letras;/*cantidad de letras que no se repiten*/
 
 
@@ -76,11 +76,16 @@ void procesar_letras()
 {
 
 	int i,j;
-	char *temp_letras;
+	char *temp_letras;/*array donde almaceno temporalmente todas las letras*/
+	char l;
+	int k = 0;
 	
 	
 	/*alojo memoria para el array temporal donde concateno los strings*/
-	temp_letras = (char*)malloc(strlen(toperador1)+strlen(toperador2)+strlen(resultado));	
+	temp_letras = (char*)malloc(15*sizeof(char));
+	/*pongo a cero temp_letras*/	
+	memset(temp_letras,0,15);
+	memset(array_letras,0,10);
 
 	/*concateno los 3 strings en 1*/
 	strcat(temp_letras,toperador1);
@@ -91,15 +96,39 @@ void procesar_letras()
 	printf("%d",strlen(temp_letras));
 
 	/*busco letras dentro del string que no se repiten*/
-	for(j=0;j < strlen(temp_letras);j++)
-	{
+	
+
 		for(i=0;i < strlen(temp_letras);i++)
 		{
+
+			if(temp_letras[i] != '_')
+			{
 		
+				array_letras[k] = temp_letras[i];
 				
 
+				for(j=i+1;j < strlen(temp_letras);j++)
+				{
+
+					if(temp_letras[j] == array_letras[k])
+					{
+
+						temp_letras[j] = '_';
+					
+					} 					
+					
+				}
+	
+				k++;
+				
+			}
+
 		}
-	}
+	
+	printf("TROLAZOS 2: %s\n",temp_letras);
+	printf("PUTOS %s\n",array_letras);
+	printf("%d",k);
+
 
 }
 
