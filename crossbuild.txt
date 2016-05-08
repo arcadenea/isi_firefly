@@ -1,0 +1,8 @@
+http://arrayfire.com/cross-compile-to-windows-from-linux/
+http://ftp.acc.umu.se/pub/GNOME/binaries/win32/
+
+
+sudo apt-get install mingw-w64
+
+
+
