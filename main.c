@@ -9,21 +9,28 @@ const char *toperador2;
 const char *resultado;
 
 /*constantes*/
-int n_luciernagas = 1000;/*numero total de luciernagas*/
+int n_luc;/*numero total de luciernagas*/
 int n_gen = 1000;/*numero total de generaciones*/
 
-char *array_letras;/*letras que no se repiten*/
+char array_letras[10];/*letras que no se repiten*/
 int cant_letras;/*cantidad de letras que no se repiten*/
 
 
 
-typedef struct
+struct nodo
 {
 
-	char *letras;
-	int error;
+	int luc_numeros[10];
+	int luc_error;
+
+	struct nodo *proximo; 
 	
-}firefly;/*luciernaga*/
+};
+
+typedef struct nodo item;
+
+item *curr,*head;
+
 
 GtkWidget *make_entry_with_label(GtkTable *table, const gchar *label_text, gint left_attach, gint right_attach, gint top_attach, 
                                 gint bottom_attach, gint entry_length);
@@ -76,39 +83,117 @@ void procesar_letras()
 {
 
 	int i,j;
-	char *temp_letras;
+	char *temp_letras;/*array donde almaceno temporalmente todas las letras*/
+	int k = 0;
 	
 	
 	/*alojo memoria para el array temporal donde concateno los strings*/
-	temp_letras = (char*)malloc(strlen(toperador1)+strlen(toperador2)+strlen(resultado));	
+	temp_letras = (char*)malloc(15*sizeof(char));
+
+	/*pongo a cero temp_letras*/	
+	memset(temp_letras,0,15);
+	memset(array_letras,'_',10);
 
 	/*concateno los 3 strings en 1*/
 	strcat(temp_letras,toperador1);
 	strcat(temp_letras,toperador2);
 	strcat(temp_letras,resultado);
 
-	printf("TROLAZOS: %s\n",temp_letras);
-	printf("%d",strlen(temp_letras));
+	printf("ARRAY TEMPORAL: %s\n",temp_letras);
 
 	/*busco letras dentro del string que no se repiten*/
-	for(j=0;j < strlen(temp_letras);j++)
-	{
+	
+
 		for(i=0;i < strlen(temp_letras);i++)
 		{
+
+			if(temp_letras[i] != '_')
+			{
 		
+				array_letras[k] = temp_letras[i];
 				
 
-		}
-	}
+				for(j=i+1;j < strlen(temp_letras);j++)
+				{
+
+					if(temp_letras[j] == array_letras[k])
+					{
+
+						temp_letras[j] = '_';
+					
+					} 					
+					
+				}
+	
+				k++;
+				
+			}
+			
+			if(k >= 10)break;
+
+
+		}		
+	
+	printf("ARRAY TEMPORAL FILTRADO: %s\n",temp_letras);
+	printf("LETRAS DEL ARRAY %s\n",array_letras);
+	printf("LONGITUD ARRAY LETRAS: %d\n",strlen(array_letras));
+
 
 }
 
 void iniciar_luciernagas(int num_luciernagas)
 {
 
+	int i;
+	n_luc = num_luciernagas;
+
+	head = NULL;
+
+	for(i=0;i < n_luc;i++)
+	{
+
+		curr = (item *)malloc(sizeof(item));
+
+		memset(curr->luc_numeros,0,10);
+		curr->luc_error = 0;
+		
+		generar_numeros(curr->luc_numeros);
+
+		curr->proximo = head;
+		head = curr;
+
+	}
+
+	curr = head;
+
+}
+
+void generar_numeros(int array[10]) 
+{
+
+	int i,j;
+
+	for(i=0;i < 10;i++)
+	{	
+
+		if(array[i] != '_')
+		{	
+			array[i] = rand() % 10;		
+		}
 	
+		for(j=0;j < 10;j++)
+		{
 
+			if((array[i] == array[j]) && (i != j))
+			{
+					
+				array[i] = rand() % 10;				
 
+			}
+
+		}
+	
+	}
 
 
 
