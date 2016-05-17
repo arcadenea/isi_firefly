@@ -2,6 +2,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <gtk/gtk.h>
+#include "math.h"
+
+#define SUMA 0
+#define RESTA 1
 
 /*operadores*/
 const char *toperador1;
@@ -17,19 +21,29 @@ int cant_letras;/*cantidad de letras que no se repiten*/
 
 
 
-struct nodo
+typedef struct 
 {
 
 	int luc_numeros[10];
 	int luc_error;
-
-	struct nodo *proximo; 
 	
-};
+}sfirefly;
 
-typedef struct nodo item;
 
-item *curr,*head;
+sfirefly *luciernagas;
+
+
+/*funciones*/
+void generar_numeros(int array[10]);
+
+int calcular_func_objetivo(int operacion,int array_num[10]);
+
+int calcular_operador(const char *operador,int array_num[10]);
+
+
+
+
+
 
 
 GtkWidget *make_entry_with_label(GtkTable *table, const gchar *label_text, gint left_attach, gint right_attach, gint top_attach, 
@@ -144,58 +158,126 @@ void procesar_letras()
 void iniciar_luciernagas(int num_luciernagas)
 {
 
-	int i;
+	int i,j;
 	n_luc = num_luciernagas;
 
-	head = NULL;
+	luciernagas = (sfirefly*)malloc(n_luc * sizeof(sfirefly*));
+	
+	for(i=0;i < n_luc;i++)
+	{
+
+		memset(luciernagas[i].luc_numeros,0,10);
+		luciernagas[i].luc_error = 0;
+		
+		generar_numeros(luciernagas[i].luc_numeros);
+
+		luciernagas[i].luc_error = calcular_func_objetivo(SUMA,luciernagas[i].luc_numeros);
+
+	}
+
+
 
 	for(i=0;i < n_luc;i++)
 	{
 
-		curr = (item *)malloc(sizeof(item));
+		for(j=0;j<10;j++)printf("%d",luciernagas[i].luc_numeros[j]);
+		printf("\n");
+		printf("%d\n",luciernagas[i].luc_error);
 
-		memset(curr->luc_numeros,0,10);
-		curr->luc_error = 0;
-		
-		generar_numeros(curr->luc_numeros);
-
-		curr->proximo = head;
-		head = curr;
-
-	}
-
-	curr = head;
+	}	
 
 }
 
 void generar_numeros(int array[10]) 
 {
 
-	int i,j;
+	int i;
 
+	int in1 = 0;/*indice 1*/
+	int in2 = 0;/*indice 2*/
+
+	int numtemp[10] = {0,1,2,3,4,5,6,7,8,9};
+	int num = 0;
+
+	/*HAGO 10 PERMUTACIONES CON 2 POSICIONES ALEATORIAS DIFERENTES EN EL ARREGLO DE NUMEROS NUMTEMP*/
+		
 	for(i=0;i < 10;i++)
 	{	
-
-		if(array[i] != '_')
-		{	
-			array[i] = rand() % 10;		
-		}
+		
+		in1 = rand() % 10;		
+		while(in1 == in2)in2 = rand() % 10;/*hasta que no sea diferente a in1 genero numeros en in2*/	
 	
-		for(j=0;j < 10;j++)
-		{
+		/*hago la permutacion*/
 
-			if((array[i] == array[j]) && (i != j))
-			{
-					
-				array[i] = rand() % 10;				
-
-			}
-
-		}
+		num = numtemp[in1];
+		numtemp[in1] = numtemp[in2];
+		numtemp[in2] = num;
+		num = 0;
 	
 	}
 
+	/*for(i=0;i<10;i++)printf("%d",numtemp[i]);
+	printf("\n");*/
 
+	/*asigno el array generado*/
+	memcpy(array,numtemp,sizeof(numtemp));
+
+}
+
+int calcular_func_objetivo(int operacion,int array_num[10])
+{
+
+	int op1 = 0;
+	int op2 = 0;
+	int op3 = 0;
+	int ac = 0;
+
+	op1 = calcular_operador(toperador1,array_num);
+	op2 = calcular_operador(toperador2,array_num);	
+	op3 = calcular_operador(resultado,array_num);
+
+	/*printf("%d\n",op1);
+	printf("%d\n",op2);
+	printf("%d\n",op3);*/									
+
+	if(operacion == SUMA)
+	{
+		ac = op3 - (op1 + op2);		
+	}
+
+	return ac;
+
+}
+
+int calcular_operador(const char *operador,int array_num[10])
+{
+
+	int i,j;
+	int exponente = 0;
+	int ac = 0;
+
+	for(i=(strlen(operador)-1);i >= 0;i--)
+	{
+
+		for(j=0;j < strlen(array_letras);j++)
+		{
+
+			if(operador[i] == array_letras[j])
+			{
+
+				ac = ac + (array_num[j] * pow(10,exponente));
+		
+				//printf("%d\n",ac);			
+			
+			}
+		
+		}						
+
+		exponente++;
+
+	}
+
+	return ac;
 
 }
 
@@ -245,6 +327,7 @@ int main(int argc, char *argv[])
     gtk_main();
 
 	procesar_letras();
+	iniciar_luciernagas(10);
 
     return 0;
 
