@@ -1,0 +1,46 @@
+PPATH=/home/cabral/proyectos/firefly
+TARGET=firefly.exe
+#TARGET_LINUX=1
+CC = i686-w64-mingw32-gcc
+DEBUG = -g
+CFLAGS = -Wall	\
+-I$(PPATH)/	\
+-I$(PPATH)/libs/gtk+-dev_2.24.10-1_win32/include/gtk-2.0	\
+-I$(PPATH)/libs/glib-dev_2.28.8-1_win32/include/glib-2.0	\
+-I$(PPATH)/libs/glib-dev_2.28.8-1_win32/lib/glib-2.0/include	\
+-I$(PPATH)/libs/cairo-dev_1.10.2-2_win32/include/cairo	\
+-I$(PPATH)/libs/pango-dev_1.29.4-1_win32/include/pango-1.0	\
+-I$(PPATH)/libs/gtk+-dev_2.24.10-1_win32/lib/gtk-2.0/include	\
+-I$(PPATH)/libs/gdk-pixbuf-dev_2.24.0-1_win32/include/gdk-pixbuf-2.0	\
+-I$(PPATH)/libs/atk-dev_1.32.0-2_win32/include/atk-1.0	\
+-c $(DEBUG) 
+LFLAGS = -Wall \
+-L$(PPATH)/libs/glib-dev_2.28.8-1_win32/lib	\
+-L$(PPATH)/libs/gtk+-dev_2.24.10-1_win32/lib \
+-L$(PPATH)/libs/cairo-dev_1.10.2-2_win32/lib	\
+-L$(PPATH)/libs/atk-dev_1.32.0-2_win32/lib	\
+-L$(PPATH)/libs/pango-dev_1.29.4-1_win32/lib	\
+-L$(PPATH)/libs/gdk-pixbuf-dev_2.24.0-1_win32/lib	\
+-lgtk-win32-2.0 -lgdk-win32-2.0 -latk-1.0 -lgio-2.0 -lpangowin32-1.0 \
+-lgdi32 -lpangocairo-1.0 -lgdk_pixbuf-2.0 -lpango-1.0 -lcairo -lgobject-2.0 \
+-lgmodule-2.0 -lgthread-2.0 -lglib-2.0 \
+$(DEBUG)
+LIBS = 
+#CC=LD_LIBRARY_PATH=./libs/glib-dev_2.28.8-1_win32/lib
+
+
+all: $(TARGET)
+
+OBJS += main.o 
+
+rm-elf:
+	-rm -f $(TARGET) $(OBJS)
+
+$(TARGET): $(OBJS)
+	$(CC)  $(OBJS) -o $(TARGET) $(LFLAGS) $(LIBS)
+
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+clean:
+	rm -f *.o $(TARGET) $(OBJS)
