@@ -27,6 +27,8 @@ int n_luc;/*numero total de luciernagas*/
 char array_letras[10];/*letras que no se repiten*/
 int cant_letras;/*cantidad de letras que no se repiten*/
 
+int operacion = 0;
+
 
 
 typedef struct 
@@ -200,7 +202,7 @@ void iniciar_luciernagas(int num_luciernagas)
 		generar_numeros(luciernagas[i].luc_numeros);
 
 		/*calculo funcion objetivo*/
-		luciernagas[i].luc_intensidad = calcular_func_objetivo2(SUMA,luciernagas[i].luc_numeros);
+		luciernagas[i].luc_intensidad = calcular_func_objetivo2(operacion,luciernagas[i].luc_numeros);
 
 
 	}
@@ -274,7 +276,7 @@ void correr_algoritmo(int numcorridas)
 					printf("\n");*/
 
 					/*recalculo funcion objetivo para j*/
-					luciernagas[j].luc_intensidad = calcular_func_objetivo2(SUMA,luciernagas[j].luc_numeros);
+					luciernagas[j].luc_intensidad = calcular_func_objetivo2(operacion,luciernagas[j].luc_numeros);
 					/*printf("INTENSIDAD RECALCULADA %f \n: ",luciernagas[j].luc_intensidad);
 					printf("\n");*/
 
@@ -585,14 +587,29 @@ float calcular_func_objetivo2(int operacion,int array_num[10])
 
 	}else{
 		
-		for(i=0;i < 5;i++)
+		if(operacion == 0)
 		{
+			for(i=0;i < 5;i++)
+			{
 	
-			//peso = 1/tanh(i);
-			peso = pow(10,5-i);	
-			ac = abs((((op1 + op2)%(int)pow(10,i+1)) - (op3%(int)pow(10,i+1)))) * peso;
+				//peso = 1/tanh(i);
+				peso = pow(10,5-i);	
+				ac = abs((((op1 + op2)%(int)pow(10,i+1)) - (op3%(int)pow(10,i+1)))) * peso;
+
+			}
+		}else if(operacion == 1){
+	
+			for(i=0;i < 5;i++)
+			{
+	
+				//peso = 1/tanh(i);
+				peso = pow(10,5-i);	
+				ac = abs((((op2 + op3)%(int)pow(10,i+1)) - (op1%(int)pow(10,i+1)))) * peso;
+
+			}
 
 		}
+
 
 	}
 		
@@ -717,9 +734,11 @@ int main(int argc, char *argv[])
 			toperador1 = argv[1];
 			toperador2 = argv[2];		
 			resultado = argv[3];
+			operacion =  atoi(argv[4]);
 
 			printf("%s %s %s\n",toperador1,toperador2,resultado);
 			printf("%d %d %d\n",strlen(toperador1),strlen(toperador2),strlen(resultado));
+			printf("operacion: %d\n",operacion);
 
 		}else{
 
@@ -737,7 +756,7 @@ int main(int argc, char *argv[])
 
 	procesar_letras();
 	iniciar_luciernagas(100);
-	correr_algoritmo(10);
+	correr_algoritmo(30);
 
     return 0;
 
