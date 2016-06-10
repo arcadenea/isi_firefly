@@ -22,13 +22,20 @@ const char *toperador2;
 const char *resultado;
 
 /*constantes*/
-int n_luc;/*numero total de luciernagas*/
+int n_luc = 10;/*numero total de luciernagas*/
+int n_it = 1;/*numero total de iteraciones*/
 
 char array_letras[10];/*letras que no se repiten*/
 int cant_letras;/*cantidad de letras que no se repiten*/
 
 int operacion = 0;
 
+double alfa = 0.5;		
+double betaini = 1.0;           
+double gama = 0.002;
+
+float bri_ant = 0;/*brillo de la luciernaga 0 en la iteracion anterior*/
+int cont_brillo = 0;/*cantidad de veces que la luciernaga 0 brille igual*/
 
 
 typedef struct 
@@ -58,7 +65,13 @@ void acercar_luciernaga(int array_mayor[10],int array_menor[10],int distancia[10
 
 void acercar_luciernaga2(int array_mayor[10],int array_menor[10],int distancia[10]);
 
+void acercar_luciernaga3(int array_mayor[10],int array_menor[10]);
+
+void acercar_luciernaga4(int array_mayor[10],int array_menor[10]);
+
 void ordenar_luciernagas();
+
+void alejar_luciernaga(int array_numeros[10]);
 
 
 
@@ -187,9 +200,9 @@ void iniciar_luciernagas(int num_luciernagas)
 {
 
 	int i,j;
-	n_luc = num_luciernagas;
 
-	luciernagas = (sfirefly*)malloc(n_luc * sizeof(sfirefly*));
+	/*alojo memoria para la poblacion de luciernagas*/
+	luciernagas = (sfirefly*)malloc(num_luciernagas * sizeof(sfirefly*));
 	
 	for(i=0;i < n_luc;i++)
 	{
@@ -241,7 +254,7 @@ void correr_algoritmo(int numcorridas)
 				if((luciernagas[i].luc_intensidad) < (luciernagas[j].luc_intensidad))
 				{
 					
-					/*printf("VECTOR %d: ",i);
+					printf("VECTOR %d: ",i);
 					for(k=0;k < 10;k++)
 					{					
 						printf("%d ",luciernagas[i].luc_numeros[k]);
@@ -253,10 +266,10 @@ void correr_algoritmo(int numcorridas)
 					{					
 						printf("%d ",luciernagas[j].luc_numeros[k]);
 					}
-					printf("\n");*/
+					printf("\n");
 
 					/*calculo la distancia entre i y j*/
-					distancia = calcular_distancia(luciernagas[i].luc_numeros,luciernagas[j].luc_numeros);
+					//distancia = calcular_distancia(luciernagas[i].luc_numeros,luciernagas[j].luc_numeros);
 					
 					/*printf("DISTANCIA: ");
 					for(k=0;k < 10;k++)
@@ -266,19 +279,20 @@ void correr_algoritmo(int numcorridas)
 					printf("\n");*/
 
 					/*tengo que acercar luciernaga i a j*/
-					acercar_luciernaga2(luciernagas[i].luc_numeros,luciernagas[j].luc_numeros,distancia);
+					//acercar_luciernaga2(luciernagas[i].luc_numeros,luciernagas[j].luc_numeros,distancia);
+					acercar_luciernaga3(luciernagas[i].luc_numeros,luciernagas[j].luc_numeros);
 
-					/*printf("VECTOR ACERCADO %d: ",j);
+					printf("VECTOR ACERCADO %d: ",j);
 					for(k=0;k < 10;k++)
 					{					
 						printf("%d ",luciernagas[j].luc_numeros[k]);
 					}
-					printf("\n");*/
+					printf("\n");
 
 					/*recalculo funcion objetivo para j*/
 					luciernagas[j].luc_intensidad = calcular_func_objetivo2(operacion,luciernagas[j].luc_numeros);
-					/*printf("INTENSIDAD RECALCULADA %f \n: ",luciernagas[j].luc_intensidad);
-					printf("\n");*/
+					printf("INTENSIDAD RECALCULADA %f \n: ",luciernagas[j].luc_intensidad);
+					printf("\n");
 
 
 
@@ -291,7 +305,48 @@ void correr_algoritmo(int numcorridas)
 		
 		/*ordeno la poblacion de luciernagas por brillo*/
 		ordenar_luciernagas();
-	
+
+		printf("LUCIERNAGA 0 iteracion %d: ",t);
+		for(i=0;i < 10;i++)
+		{					
+			printf("%d ",luciernagas[0].luc_numeros[i]);
+			
+		}
+		printf("BRILLO 0: %f",luciernagas[0].luc_intensidad);
+		printf("\n");
+
+		if((bri_ant == luciernagas[0].luc_intensidad) && (luciernagas[0].luc_intensidad != 0))
+		{
+			cont_brillo++;
+		}else{
+			cont_brillo = 0;
+		}
+
+		if(cont_brillo == 5)
+		{
+
+			alejar_luciernaga(luciernagas[0].luc_numeros);
+
+			luciernagas[0].luc_intensidad = calcular_func_objetivo2(operacion,luciernagas[0].luc_numeros);
+
+			printf("LUCIERNAGA 0 iteracion %d cambiada: ",t);
+			for(i=0;i < 10;i++)
+			{					
+				printf("%d ",luciernagas[0].luc_numeros[i]);
+			
+			}
+			printf("BRILLO 0 cambiada: %f",luciernagas[0].luc_intensidad);
+			printf("\n");
+
+			cont_brillo = 0;
+
+			/*ordeno la poblacion de luciernagas por brillo*/
+			ordenar_luciernagas();
+
+		}
+
+		bri_ant = luciernagas[0].luc_intensidad;
+
 		t++;
 
 	}
@@ -439,6 +494,225 @@ void acercar_luciernaga2(int array_mayor[10],int array_menor[10],int distancia[1
 
 }
 
+void acercar_luciernaga3(int array_mayor[10],int array_menor[10])
+{
+
+	int i,j,k;
+
+	int dist = 0;/*distancia total entre las 2 luciernagas*/
+
+	int *distancia;/*arreglo de distancias entre luciernagas para cada una de las letras*/
+
+	float beta = 0;
+
+	int num_perm = 0;/*numero de permutaciones a realizar*/
+	
+	int mayor = 0;
+	int pmayor = 0;
+	int segundo = 0;
+	int psegundo =0;
+	int temp = 0;
+	int pos = 0;
+
+	float nrandom = 0;
+
+	/*calculo distancia manhattan para cada letra*/
+	distancia = calcular_distancia(array_mayor,array_menor);
+	
+	/*calculo distancia total*/
+	for(i=0;i < cant_letras;i++)
+	{
+
+		dist = dist + distancia[i];
+
+	}
+	
+	/*calculo beta*/
+	beta = betaini * exp(-gama * pow(dist,2));
+
+	nrandom = (float)rand()/(float)(RAND_MAX/1.0);
+
+	num_perm = round(beta * dist) + (alfa * (nrandom - 0.5));
+
+	//printf("%d\n",num_perm);
+
+	
+	for(i=0;i < num_perm;i++)
+	{
+
+		distancia = calcular_distancia(array_mayor,array_menor);
+
+
+		for(j=0;j < cant_letras;j++)
+		{
+			if(distancia[j] >= mayor)
+			{
+				mayor = distancia[j];
+				pmayor = j;
+			} 	
+		}
+
+
+		for(k=0;k < 10;k++)
+		{
+			if((distancia[k] >= segundo) && (k!=pmayor))
+			{
+				segundo = distancia[k];
+				psegundo = k;
+			} 	
+		}
+
+		temp = array_menor[pmayor];
+		array_menor[pmayor] = array_menor[psegundo];
+		array_menor[psegundo] = temp;
+
+	}
+
+	
+		
+
+}
+
+void acercar_luciernaga4(int array_mayor[10],int array_menor[10])
+{
+
+	int i,j;
+
+	float nrandom = 0.0;
+
+	int numero = 0;
+
+	int *distancia;
+
+	int dist = 0;
+
+	float beta = 0;
+
+	int flag = 0;
+
+	//int *array_destino = (int*)malloc(10 * sizeof(int));
+
+	static int array_destino[10];
+
+	/*calculo distancia manhattan para cada letra*/
+	distancia = calcular_distancia(array_mayor,array_menor);
+	
+	/*calculo distancia total*/
+	for(i=0;i < cant_letras;i++)
+	{
+
+		dist = dist + distancia[i];
+
+	}
+
+	/*calculo beta*/
+	beta = 1 / (1 + (gama*pow(dist,2)));
+
+	printf("beta: %f\n",beta);
+
+
+	/*- si son iguales los numeros en la misma posicion en array mayor y menor, lleno array destino con ese numero
+	  - si random es menor a beta lleno posicion de array_destino con array menor, si no con array mayor
+	  - si el numero ya se uso, marco posicion con un -1 y paso a la siguiente posicion */	
+
+	for(i=0;i < 10;i++)
+	{
+
+		if(array_mayor[i] == array_menor[i])
+		{
+
+			array_destino[i] = array_mayor[i];
+
+		}else{
+
+			/*genera un numero random flotante*/
+			nrandom = (float)rand()/(float)(RAND_MAX/1);
+
+			printf("%f\n",nrandom);
+
+			if(nrandom < beta)
+			{
+				numero = array_menor[i];
+			}else if(nrandom >= beta){
+				numero = array_mayor[i];
+			}
+
+			for(j=0;j < i;j++)
+			{
+				if(numero == array_destino[j])
+				{
+					flag = 1;
+				}
+			}
+
+			if(flag == 0)
+			{
+				array_destino[i] = numero;
+			}else{	
+				array_destino[i] = -1;
+			}
+
+			flag = 0;
+			nrandom = 0;			
+			
+		}
+
+	}
+
+	/*al finalizar el llenado, van a quedar posiciones sin llenar, marcadas con -1
+	  Procedo a llenarlas aleatoriamente con los valores que sobraron*/
+	
+	/*
+	for(i=0;i < 10;i++)
+	{
+
+		if(array_destino[i] == -1)
+		{
+
+
+			flag = 0;
+
+			do{
+
+				
+	
+			}while(flag == 0)
+
+			array_destino[i] = numero;
+
+		}
+
+	}
+	*/	
+	
+	/*asigno el array generado*/
+	memcpy(array_menor,array_destino,sizeof(array_destino));
+	
+
+}
+
+
+void alejar_luciernaga(int array_numeros[10])
+{
+
+	int valor1 = 0;
+	int valor2 = 0;
+	int posicion = 0;
+		
+	do{
+		
+		posicion = rand() % cant_letras;
+		valor1 = array_numeros[posicion];
+
+	}while(posicion == valor1);	
+
+	valor2 =  array_numeros[valor1];
+
+	array_numeros[posicion] = valor2;
+	array_numeros[valor1] = valor1;
+
+}
+
 
 
 int *calcular_distancia(int array1[10],int array2[10])
@@ -532,13 +806,13 @@ float calcular_func_objetivo(int operacion,int array_num[10])
 		/*de otra manera se calcula normalmente la funcion objetivo*/	
 		if(operacion == SUMA)
 		{
-			ac = (unsigned)(op3 - (op1 + op2));		
+			ac = abs(op3 - (op1 + op2));		
 		}
 
 	}
 
 	/*me fijo si tengo que evitar division por 0*/		
-	if(ac == 0)
+	/*if(ac == 0)
 	{
 
 		error = pow(10,8);
@@ -551,9 +825,9 @@ float calcular_func_objetivo(int operacion,int array_num[10])
 
 	printf("%d\n",ac);
 
-	printf("%f\n",error);
+	printf("%f\n",error);*/
 
-	return error;
+	return ac;
 
 }
 
@@ -755,8 +1029,8 @@ int main(int argc, char *argv[])
 
 
 	procesar_letras();
-	iniciar_luciernagas(100);
-	correr_algoritmo(30);
+	iniciar_luciernagas(n_luc);
+	correr_algoritmo(n_it);
 
     return 0;
 
