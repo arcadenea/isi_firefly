@@ -22,8 +22,8 @@ const char *toperador2;
 const char *resultado;
 
 /*constantes*/
-int n_luc = 100;/*numero total de luciernagas*/
-int n_it = 3;/*numero total de iteraciones*/
+int n_luc = 250;/*numero total de luciernagas*/
+int n_it = 10;/*numero total de iteraciones*/
 
 char array_letras[10];/*letras que no se repiten*/
 int cant_letras;/*cantidad de letras que no se repiten*/
@@ -36,6 +36,9 @@ double gama = 0.002;
 
 float bri_ant = 0;/*brillo de la luciernaga 0 en la iteracion anterior*/
 int cont_brillo = 0;/*cantidad de veces que la luciernaga 0 brille igual*/
+
+float prom_brillo = 0;/*promedio de brillo por iteracion*/
+float total_prom_br = 0;/*promedio total de brillo por iteracion*/
 
 
 typedef struct 
@@ -268,7 +271,7 @@ void correr_algoritmo(int numcorridas)
 					{					
 						printf("%d ",luciernagas[j].luc_numeros[k]);
 					}
-					printf("\n");*/
+					printf("\n");
 
 					/*calculo la distancia entre i y j*/
 					//distancia = calcular_distancia(luciernagas[i].luc_numeros,luciernagas[j].luc_numeros);
@@ -307,6 +310,21 @@ void correr_algoritmo(int numcorridas)
 		
 		/*ordeno la poblacion de luciernagas por brillo*/
 		ordenar_luciernagas();
+	
+		for(i=0;i < n_luc;i++)
+		{
+
+			//printf("brillo luc %d: %f\n",i,luciernagas[i].luc_intensidad);
+			prom_brillo = (float)prom_brillo + (float)luciernagas[i].luc_intensidad;
+		
+		}
+
+			prom_brillo = prom_brillo/(float)n_luc;
+
+			printf("brillo promedio iteracion %d: %f\n",t,prom_brillo);
+	
+			total_prom_br = total_prom_br + prom_brillo;
+			prom_brillo = 0.0;	
 
 		printf("LUCIERNAGA 0 iteracion %d: ",t);
 		for(i=0;i < 10;i++)
@@ -361,6 +379,10 @@ void correr_algoritmo(int numcorridas)
 		}
 		printf("BRILLO 0: %f",luciernagas[0].luc_intensidad);
 		printf("\n");
+
+		total_prom_br = total_prom_br/(float)numcorridas;
+
+		printf("promedio total brillo: %f\n",total_prom_br);
 
 
 }
@@ -704,6 +726,8 @@ void acercar_luciernaga4(int array_mayor[10],int array_menor[10])
 		}
 
 	}
+
+	
 
 	aplicar_alfa(array_destino);
 	
