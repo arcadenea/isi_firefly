@@ -171,9 +171,11 @@ void procesar_letras()
 
 		}		
 	
-	printf("ARRAY TEMPORAL FILTRADO: %s\n",temp_letras);
-	printf("LETRAS DEL ARRAY %s\n",array_letras);
+	//printf("ARRAY TEMPORAL FILTRADO: %s\n",temp_letras);
+	//printf("LETRAS DEL ARRAY %s\n",array_letras);
 
+
+	/*calculo cantidad de letras utilizadas*/
 	for(i=0;i < 10;i++)
 	{
 
@@ -184,7 +186,7 @@ void procesar_letras()
 
 	}
 
-	printf("LONGITUD ARRAY LETRAS QUE NO SE REPITEN: %d\n",cant_letras);
+	//printf("LONGITUD ARRAY LETRAS QUE NO SE REPITEN: %d\n",cant_letras);
 
 
 }
@@ -305,7 +307,7 @@ void correr_algoritmo(int numiteraciones)
 			prom_brillo = (float)prom_brillo/(float)n_luc;
 
 			//printf("brillo promedio iteracion %d: %f\n",t,prom_brillo);
-			printf("%f %d\n",prom_brillo,luciernagas[0].luc_intensidad);
+			//printf("%f %d\n",prom_brillo,luciernagas[0].luc_intensidad);
 
 	
 			/*se calcula brillo total promedio*/
@@ -332,6 +334,9 @@ void correr_algoritmo(int numiteraciones)
 		total_prom_br = total_prom_br/(float)numiteraciones;
 
 		//printf("promedio total brillo: %f\n",total_prom_br);
+		
+		free(distancia);
+		free(luciernagas);
 
 
 }
@@ -558,7 +563,9 @@ int *calcular_distancia(int array1[10],int array2[10])
 
 	int valor = 0;
 
-	static int array_temp[10];
+	//static int array_temp[10];
+
+	int *array_temp = (int*)malloc(10*sizeof(int));
 
 	memset(array_temp,0,10);
 
