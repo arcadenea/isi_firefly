@@ -5,24 +5,37 @@
 #include <math.h>
 
 GtkTextBuffer *buffer;
+GtkWidget *window;
 
+
+void mostrar_ventana_resultados()
+{
+
+gtk_widget_show_all(window);
+
+}
 
 void mostrar_resultados()
 {
 		
 		printf("ventana nueva\n");
-		GtkWidget *window;
+		GtkWidget *swindow;
 		GtkWidget *vsalida;
 		GtkWidget *box;
+		GtkWidget* table;
 
 	   	window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+		gtk_window_set_resizable(window, FALSE);
     	gtk_window_set_title(GTK_WINDOW(window), "Resultados");
-    	gtk_widget_set_size_request(window, 350, 600);
+    	gtk_widget_set_size_request(window, 700, 600);
     	gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER);
     	gtk_container_set_border_width(GTK_CONTAINER(window), 10);
-    	g_signal_connect(GTK_WINDOW(window), "delete_event", G_CALLBACK(gtk_main_quit), NULL);
+	   	g_signal_connect(GTK_WINDOW(window), "delete_event", G_CALLBACK(gtk_widget_hide_all), window);
 
+		swindow=gtk_scrolled_window_new(NULL,NULL);
+		gtk_scrolled_window_set_policy(swindow, GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
     	box = gtk_vbox_new(FALSE, 5);
+		table = gtk_table_new(1, 1, FALSE);
 
 		buffer=gtk_text_buffer_new(NULL);
 		vsalida=gtk_text_view_new_with_buffer(buffer);
@@ -33,11 +46,13 @@ void mostrar_resultados()
 
 
 
-    	gtk_container_add(GTK_CONTAINER(box), vsalida);
+    	//gtk_container_add(GTK_CONTAINER(box), vsalida);
+		gtk_container_add(GTK_CONTAINER(swindow), vsalida);
+		gtk_table_attach_defaults(GTK_TABLE(table), swindow, 0, 1, 0, 1);
 
+    	gtk_container_add(GTK_CONTAINER(window), table);
+//    	gtk_widget_show_all(window);
 
-    	gtk_container_add(GTK_CONTAINER(window), box);
-    	gtk_widget_show_all(window);
 //    	gtk_main();
 }
 
