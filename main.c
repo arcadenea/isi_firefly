@@ -3,6 +3,7 @@
 #include <string.h>
 #include <gtk/gtk.h>
 #include <math.h>
+#include "result.h" 
 
 /*etiquetas para suma y resta*/
 #define SUMA 0
@@ -19,7 +20,7 @@ int n_luc = 200;/*numero total de luciernagas*/
 int n_it = 10;/*numero total de iteraciones*/
 
 char array_letras[10];/*letras que no se repiten*/
-int cant_letras;/*cantidad de letras que no se repiten*/
+int cant_letras = 0;/*cantidad de letras que no se repiten*/
 
 int operacion = SUMA;/*operacion a realizar*/
 
@@ -103,14 +104,36 @@ GtkWidget *make_entry_with_label(GtkTable *table,
 
 void cargar_operadores(GtkWidget *entry[])
 {
-    
+	
+	cant_letras=0;  
 	toperador1 = gtk_entry_get_text(GTK_ENTRY(entry[0]));
 	toperador2 = gtk_entry_get_text(GTK_ENTRY(entry[1]));
 	resultado = gtk_entry_get_text(GTK_ENTRY(entry[2]));
 
-	printf("Operador 1: %s \n",toperador1);
-	printf("Operador 2: %s \n",toperador2);
-	printf("Resultado: %s \n",resultado);
+	imprimir_salida("Operador 1: %s \n",toperador1);
+	imprimir_salida("Operador 2: %s \n",toperador2);
+	imprimir_salida("Resultado: %s \n",resultado);
+
+	//PARTE NUEVA
+	operacion = gtk_toggle_button_get_active(entry[4]); //operacion: suma o resta
+
+	if(operacion == SUMA)
+	{
+		imprimir_salida("OPERACION: SUMA\n");
+	}else{
+		imprimir_salida("OPERACION: RESTA\n");
+	}
+
+	n_it = gtk_adjustment_get_value(entry[5]); //cantidad de iteraciones
+	n_luc = gtk_adjustment_get_value(entry[6]); //cantidad de luciernagas
+	alfa = gtk_adjustment_get_value(entry[7]); //alfa
+	gama = gtk_adjustment_get_value(entry[9]); //gamma
+
+	procesar_letras();
+	iniciar_luciernagas(n_luc);
+	correr_algoritmo(n_it);
+	mostrar_ventana_resultados();
+	//FIN PARTE NUEVA
 
 }
 
@@ -136,7 +159,7 @@ void procesar_letras()
 	strcat(temp_letras,toperador2);
 	strcat(temp_letras,resultado);
 
-	printf("ARRAY TEMPORAL: %s\n",temp_letras);
+	//printf("ARRAY TEMPORAL: %s\n",temp_letras);
 
 	/*busco letras dentro del string que no se repiten*/
 	
@@ -172,7 +195,7 @@ void procesar_letras()
 		}		
 	
 	//printf("ARRAY TEMPORAL FILTRADO: %s\n",temp_letras);
-	//printf("LETRAS DEL ARRAY %s\n",array_letras);
+	imprimir_salida("LETRAS DEL ARRAY %s\n",array_letras);
 
 
 	/*calculo cantidad de letras utilizadas*/
@@ -186,7 +209,7 @@ void procesar_letras()
 
 	}
 
-	//printf("LONGITUD ARRAY LETRAS QUE NO SE REPITEN: %d\n",cant_letras);
+	imprimir_salida("LONGITUD ARRAY LETRAS QUE NO SE REPITEN: %d\n",cant_letras);
 
 
 }
@@ -286,14 +309,19 @@ void correr_algoritmo(int numiteraciones)
 			
 		}
 
-		/*printf("LUCIERNAGA 0 iteracion %d: ",t);
+		/*Se imprime luciernaga de mas brillo por iteracion*/
+		imprimir_salida("\n");
+		imprimir_salida("LUCIERNAGA 0 iteracion %d: ",t);
 		for(i=0;i < 10;i++)
 		{					
-			printf("%d ",luciernagas[0].luc_numeros[i]);
+
+			imprimir_salida("%d ",luciernagas[0].luc_numeros[i]);
 			
 		}
-		printf("BRILLO 0: %d",luciernagas[0].luc_intensidad);
-		printf("\n");*/
+		imprimir_salida("\n");
+		imprimir_salida("BRILLO 0: %d",luciernagas[0].luc_intensidad);
+		imprimir_salida("\n");
+
 
 		/*se almacena sumatoria de brillos por iteracion*/
 		for(i=0;i < n_luc;i++)
@@ -306,9 +334,9 @@ void correr_algoritmo(int numiteraciones)
 			/*se calcula el valor promedio de brillo por iteracion*/
 			prom_brillo = (float)prom_brillo/(float)n_luc;
 
-			//printf("brillo promedio iteracion %d: %f\n",t,prom_brillo);
-			//printf("%f %d\n",prom_brillo,luciernagas[0].luc_intensidad);
-
+			/*se imprime brillo promedio por iteracion*/
+			imprimir_salida("BRILLO PROMEDIO ITERACION %d: %f",t,prom_brillo);
+			imprimir_salida("\n");
 	
 			/*se calcula brillo total promedio*/
 			total_prom_br = total_prom_br + prom_brillo;
@@ -321,22 +349,26 @@ void correr_algoritmo(int numiteraciones)
 
 	}
 
-		printf("LUCIERNAGA 0: ");
-		for(i=0;i < 10;i++)
-		{					
-			printf("%c=%d ",array_letras[i],luciernagas[0].luc_numeros[i]);
+	/*impresion de resultados finales*/
+	imprimir_salida("\n");
+	imprimir_salida("RESULTADO FINAL: "); 
+	for(i=0;i < 10;i++)
+	{					
+
+		imprimir_salida("%c=%d ",array_letras[i],luciernagas[0].luc_numeros[i]); 
 			
-		}
-		printf("BRILLO 0: %d",luciernagas[0].luc_intensidad);
-		printf("\n");
+	}
+	imprimir_salida("\n");
+	imprimir_salida("BRILLO FINAL: %d",luciernagas[0].luc_intensidad); 
+	imprimir_salida("\n"); 
+	imprimir_salida("=================================================\n");
 
-		/*calculo del brillo total promedio por iteraciones*/
-		total_prom_br = total_prom_br/(float)numiteraciones;
-
-		//printf("promedio total brillo: %f\n",total_prom_br);
+	/*calculo del brillo total promedio por iteraciones*/
+	total_prom_br = total_prom_br/(float)numiteraciones;
 		
-		free(distancia);
-		free(luciernagas);
+	/*se liberan punteros*/
+	free(distancia);
+	free(luciernagas);
 
 
 }
@@ -505,19 +537,25 @@ void acercar_luciernaga(int array_mayor[10],int array_menor[10],int distancia[10
 void aplicar_alfa(int array[10])
 {
 
-	int nrandom = rand() % 10;
-	int nrandom2 = 0;
+	int nrandom = rand() % 10;/*numero aleatorio 1*/
+	int nrandom2 = 0;/*numero aleatorio 2*/
+
+	/*calculo del ajuste alfa*/
 	int num = round(alfa * (nrandom - 0.5));
 
-	int i;
+	int i;/*variable de control*/
 
-	int temp = 0;
+	int temp = 0;/*variable de resguardo*/
 
+
+	/*num es la cantidad de permutaciones que se van a realizar entre 2 posiciones aleatorias*/	
 	for(i=0;i < num;i++)
 	{
 
+		/*genero primer posicion aleatoria*/
 		nrandom = rand() % 10;
-			
+		
+		/*busco que las 2 posiciones aleatorias sean diferentes*/	
 		while(nrandom2 == nrandom) nrandom2 = rand() % 10;
 
 		/*intercambio valores de las posiciones*/
@@ -539,7 +577,8 @@ void alejar_luciernaga(int array_numeros[10])
 	int valor1 = 0;
 	int valor2 = 0;
 	int posicion = 0;
-		
+
+	/*se busca que la posicion sea distinta del valor que contiene la posicion*/		
 	do{
 		
 		posicion = rand() % cant_letras;
@@ -547,6 +586,7 @@ void alejar_luciernaga(int array_numeros[10])
 
 	}while(posicion == valor1);	
 
+	
 	valor2 =  array_numeros[valor1];
 
 	array_numeros[posicion] = valor2;
@@ -562,8 +602,6 @@ int *calcular_distancia(int array1[10],int array2[10])
 	int i;
 
 	int valor = 0;
-
-	//static int array_temp[10];
 
 	int *array_temp = (int*)malloc(10*sizeof(int));
 
@@ -713,13 +751,35 @@ int main(int argc, char *argv[])
     	GtkWidget *vbox;
     	GtkWidget *bbox;
     	GtkWidget *boton;
-    	GtkWidget *entry[3];
+    	GtkWidget *entry[10]; //PARTE NUEVA: CAMBIAR POR 10
     	GtkWidget *frame;
     	GtkWidget *table;
 
+		//PARTE NUEVA
+		//operación: suma o resta
+    	GtkWidget *foperaciones;
+    	GtkWidget *toperaciones;
+    	GtkWidget *rbox;
+    	GtkWidget *rentry; 
+    	GtkWidget *ropsuma;
+    	GtkWidget *ropresta;
+
+		//parametros
+    	GtkWidget *fparametros;
+    	GtkWidget *tparametros;
+
+    	GtkWidget *lparametros[5]; //labels
+    	GtkWidget *sparametros[5]; //spin buttons
+		//0 - cant de iteraciones
+		//1 - cant de luciernagas
+		//2 - alfa
+		//3 - beta
+		//4 - gamma
+		//FIN PARTE NUEVA
+
     	window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     	gtk_window_set_title(GTK_WINDOW(window), "Firefly");
-    	gtk_widget_set_size_request(window, 350, 250);
+    	gtk_widget_set_size_request(window, 350, 600); //PARTE NUEVA
     	gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER);
     	gtk_container_set_border_width(GTK_CONTAINER(window), 10);
     	g_signal_connect(GTK_WINDOW(window), "delete_event", G_CALLBACK(gtk_main_quit), NULL);
@@ -736,6 +796,58 @@ int main(int argc, char *argv[])
     	entry[1] = make_entry_with_label(GTK_TABLE(table), "Operador 2", 0,1,1,2,5);
     	entry[2] = make_entry_with_label(GTK_TABLE(table), "Resultado", 0,1,2,3,5);
     
+
+		//PARTE NUEVA
+		//radio buttons de operaciones
+	   	foperaciones = gtk_frame_new("Tipo de Operación");
+    	toperaciones = gtk_table_new(2,2, FALSE);
+    	gtk_box_pack_start(GTK_BOX(vbox), foperaciones, FALSE, FALSE, 0);
+    	gtk_container_add(GTK_CONTAINER(foperaciones), toperaciones);
+
+		entry[3] = gtk_radio_button_new_with_label(NULL, "Suma");
+		entry[4] = gtk_radio_button_new_with_label_from_widget (GTK_RADIO_BUTTON (entry[3]),
+				                    "Resta");
+
+		gtk_table_attach_defaults(toperaciones, entry[3],0 ,1, 0, 1);
+		gtk_table_attach_defaults(toperaciones, entry[4],0 ,1, 1, 2);
+
+		//parametros
+	   	fparametros = gtk_frame_new("Parámetros del algoritmo");
+    	tparametros = gtk_table_new(5,2, FALSE);
+    	gtk_box_pack_start(GTK_BOX(vbox), fparametros, FALSE, FALSE, 0);
+    	gtk_container_add(GTK_CONTAINER(fparametros), tparametros);
+	
+		entry[5] = gtk_adjustment_new (10.0, 1, 1000.0, 1.0,5.0, 0.0); //cantidad de iteraciones
+		entry[6] = gtk_adjustment_new (100.0, 1, 1000.0, 1.0,5.0, 0.0); //cantidad de luciernagas
+		entry[7] = gtk_adjustment_new (0.5, 0, 1000.0, 0.001,0.5, 0.1); //alfa
+		entry[8] = gtk_adjustment_new (0.1, 0, 1000.0, 0.001,0.5, 0.1); //beta - no se usa
+		entry[9] = gtk_adjustment_new (0.002, 0, 1000.0, 0.001,0.5, 0.1); //gamma
+
+		sparametros[0] = gtk_spin_button_new (entry[5], 0, 0);
+		sparametros[1] = gtk_spin_button_new (entry[6], 0, 0);
+		sparametros[2] = gtk_spin_button_new (entry[7], 0, 3);
+		sparametros[3] = gtk_spin_button_new (entry[8], 0, 3);
+		sparametros[4] = gtk_spin_button_new (entry[9], 0, 3);
+
+		lparametros[0] = gtk_label_new("Cantidad de Iteraciones");
+		lparametros[1] = gtk_label_new("Cantidad de Luciernagas");
+		lparametros[2] = gtk_label_new("Alfa");
+		lparametros[3] = gtk_label_new("Beta");
+		lparametros[4] = gtk_label_new("Gamma");
+
+		gtk_table_attach_defaults(tparametros, lparametros[0],0 ,1, 0, 1);
+		gtk_table_attach_defaults(tparametros, lparametros[1],0 ,1, 1, 2);
+		gtk_table_attach_defaults(tparametros, lparametros[2],0 ,1, 2, 3);
+//		gtk_table_attach_defaults(tparametros, lparametros[3],0 ,1, 3, 4);
+		gtk_table_attach_defaults(tparametros, lparametros[4],0 ,1, 3, 4);
+
+		gtk_table_attach_defaults(tparametros, sparametros[0],1 ,2, 0, 1);
+		gtk_table_attach_defaults(tparametros, sparametros[1],1 ,2, 1, 2);
+		gtk_table_attach_defaults(tparametros, sparametros[2],1 ,2, 2, 3);
+//		gtk_table_attach_defaults(tparametros, sparametros[3],1 ,2, 3, 4);
+		gtk_table_attach_defaults(tparametros, sparametros[4],1 ,2, 3, 4);
+		//FIN PARTE NUEVA
+
     	bbox = gtk_hbutton_box_new();
     	gtk_box_pack_start(GTK_BOX(vbox), bbox, TRUE, TRUE, 3);
     	gtk_button_box_set_layout(GTK_BUTTON_BOX(bbox), GTK_BUTTONBOX_END);
@@ -745,9 +857,10 @@ int main(int argc, char *argv[])
     	gtk_container_add(GTK_CONTAINER(bbox), boton);
     	g_signal_connect_swapped(G_OBJECT(boton), "clicked", G_CALLBACK(cargar_operadores), entry);
     	boton = gtk_button_new_from_stock(GTK_STOCK_CANCEL);
-    	g_signal_connect(G_OBJECT(boton), "clicked", G_CALLBACK(gtk_main_quit), NULL);
-    	gtk_container_add(GTK_CONTAINER(bbox), boton);
+//    	g_signal_connect(G_OBJECT(boton), "clicked", G_CALLBACK(gtk_main_quit), NULL);
+//    	gtk_container_add(GTK_CONTAINER(bbox), boton);
     	gtk_widget_show_all(window);
+		mostrar_resultados(); //PARTE NUEVA
     	gtk_main();
 	}else{
 
@@ -775,11 +888,6 @@ int main(int argc, char *argv[])
 		
 
 	}
-
-
-	procesar_letras();
-	iniciar_luciernagas(n_luc);
-	correr_algoritmo(n_it);
 
     return 0;
 
