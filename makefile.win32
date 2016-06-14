@@ -31,7 +31,7 @@ LIBS =
 
 all: $(TARGET)
 
-OBJS += main.o 
+OBJS += main-gabriel.o result.o
 
 rm-elf:
 	-rm -f $(TARGET) $(OBJS)
