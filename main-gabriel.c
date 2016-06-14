@@ -3,6 +3,7 @@
 #include <string.h>
 #include <gtk/gtk.h>
 #include <math.h>
+#include "result.h"
 
 #define SUMA 0
 #define RESTA 1
@@ -79,7 +80,7 @@ void alejar_luciernaga(int array_numeros[10]);
 GtkWidget *make_entry_with_label(GtkTable *table, const gchar *label_text, gint left_attach, gint right_attach, gint top_attach, 
                                 gint bottom_attach, gint entry_length);
 
-void cargar_operadores(GtkWidget *entry[]);
+void cargar_operadores(GtkWidget *widget, GtkWidget *entry[]);
 
 GtkWidget *make_entry_with_label(GtkTable *table,
                      const gchar *label_text,
@@ -108,16 +109,54 @@ GtkWidget *make_entry_with_label(GtkTable *table,
 }
 
 
-void cargar_operadores(GtkWidget *entry[])
+void cargar_operadores(GtkWidget *widget, GtkWidget *entry[])
 {
     
+	mostrar_ventana_resultados();
+	imprimir_salida("Algoritmo Firefly\n");	
+
+
 	toperador1 = gtk_entry_get_text(GTK_ENTRY(entry[0]));
 	toperador2 = gtk_entry_get_text(GTK_ENTRY(entry[1]));
 	resultado = gtk_entry_get_text(GTK_ENTRY(entry[2]));
 
-	printf("Operador 1: %s \n",toperador1);
+	//0: suma, 1: resta - con tomar el valor del segundo radio button es suficiente
+	operacion = gtk_toggle_button_get_active(entry[4]);
+//	int opresta = gtk_toggle_button_get_active(entry[4]);
+
+//	printf("%d %d\n", opsuma, opresta);
+
+	n_it = gtk_adjustment_get_value(entry[5]); //cantidad de iteraciones
+	n_luc = gtk_adjustment_get_value(entry[6]); //cantidad de luciernagas
+	alfa = gtk_adjustment_get_value(entry[7]); //alfa
+	gama = gtk_adjustment_get_value(entry[9]); //gamma
+
+	imprimir_salida("Parámetros:\n");
+
+/*	printf("Operador 1: %s \n",toperador1);
 	printf("Operador 2: %s \n",toperador2);
 	printf("Resultado: %s \n",resultado);
+	printf("Operación: %s \n",(operacion == 1) ? "resta":"suma");
+	printf("Cant. Iteraciones: %d \n",n_it);
+	printf("Cant. Luciernagas: %d \n",n_luc);
+	printf("Alfa: %f \n",alfa);
+	printf("Gamma: %f \n",gama);*/
+
+	imprimir_salida("Operador 1: %s \n",toperador1);
+	imprimir_salida("Operador 2: %s \n",toperador2);
+	imprimir_salida("Resultado: %s \n",resultado);
+	imprimir_salida("Operación: %s \n",(operacion == 1) ? "resta":"suma");
+	imprimir_salida("Cant. Iteraciones: %d \n",n_it);
+	imprimir_salida("Cant. Luciernagas: %d \n",n_luc);
+	imprimir_salida("Alfa: %f \n",alfa);
+	imprimir_salida("Gamma: %f \n",gama);
+
+	imprimir_salida("-----------------------\n");
+
+	procesar_letras();
+	iniciar_luciernagas(n_luc);
+	correr_algoritmo(n_it);
+
 
 }
 
@@ -142,7 +181,7 @@ void procesar_letras()
 	strcat(temp_letras,toperador2);
 	strcat(temp_letras,resultado);
 
-	printf("ARRAY TEMPORAL: %s\n",temp_letras);
+//	printf("ARRAY TEMPORAL: %s\n",temp_letras);
 
 	/*busco letras dentro del string que no se repiten*/
 	
@@ -177,8 +216,8 @@ void procesar_letras()
 
 		}		
 	
-	printf("ARRAY TEMPORAL FILTRADO: %s\n",temp_letras);
-	printf("LETRAS DEL ARRAY %s\n",array_letras);
+//	printf("ARRAY TEMPORAL FILTRADO: %s\n",temp_letras);
+//	printf("LETRAS DEL ARRAY %s\n",array_letras);
 
 	for(i=0;i < 10;i++)
 	{
@@ -190,7 +229,7 @@ void procesar_letras()
 
 	}
 
-	printf("LONGITUD ARRAY LETRAS QUE NO SE REPITEN: %d\n",cant_letras);
+//	printf("LONGITUD ARRAY LETRAS QUE NO SE REPITEN: %d\n",cant_letras);
 
 
 }
@@ -201,7 +240,7 @@ void iniciar_luciernagas(int num_luciernagas)
 	int i,j;
 
 	/*alojo memoria para la poblacion de luciernagas*/
-	luciernagas = (sfirefly*)malloc(num_luciernagas * sizeof(sfirefly*));
+	luciernagas = (sfirefly*)malloc(num_luciernagas * sizeof(sfirefly));
 	
 	for(i=0;i < n_luc;i++)
 	{
@@ -253,19 +292,20 @@ void correr_algoritmo(int numcorridas)
 				if((luciernagas[i].luc_intensidad) < (luciernagas[j].luc_intensidad))
 				{
 					
-					printf("VECTOR %d: ",i);
+//					imprimir_salida("VECTOR %d: ",i);
+					
 					for(k=0;k < 10;k++)
 					{					
-						printf("%d ",luciernagas[i].luc_numeros[k]);
+					//	printf("%d ",luciernagas[i].luc_numeros[k]);
 					}
-					printf("\n");
+//					imprimir_salida("\n");
 
-					printf("VECTOR %d: ",j);
+					imprimir_salida("VECTOR %d: ",j);
 					for(k=0;k < 10;k++)
 					{					
-						printf("%d ",luciernagas[j].luc_numeros[k]);
+						imprimir_salida("%d ",luciernagas[j].luc_numeros[k]);
 					}
-					printf("\n");
+//					imprimir_salida("\n");
 
 					/*calculo la distancia entre i y j*/
 					//distancia = calcular_distancia(luciernagas[i].luc_numeros,luciernagas[j].luc_numeros);
@@ -273,7 +313,7 @@ void correr_algoritmo(int numcorridas)
 					/*printf("DISTANCIA: ");
 					for(k=0;k < 10;k++)
 					{					
-						printf("%d ",distancia[k]);
+						imprimir_salida("%d ",distancia[k]);
 					}
 					printf("\n");*/
 
@@ -281,17 +321,17 @@ void correr_algoritmo(int numcorridas)
 					//acercar_luciernaga2(luciernagas[i].luc_numeros,luciernagas[j].luc_numeros,distancia);
 					acercar_luciernaga3(luciernagas[i].luc_numeros,luciernagas[j].luc_numeros);
 
-					printf("VECTOR ACERCADO %d: ",j);
+//					imprimir_salida("VECTOR ACERCADO %d: ",j);
 					for(k=0;k < 10;k++)
 					{					
-						printf("%d ",luciernagas[j].luc_numeros[k]);
+//						imprimir_salida("%d ",luciernagas[j].luc_numeros[k]);
 					}
-					printf("\n");
+//					imprimir_salida("\n");
 
 					/*recalculo funcion objetivo para j*/
 					luciernagas[j].luc_intensidad = calcular_func_objetivo2(operacion,luciernagas[j].luc_numeros);
-					printf("INTENSIDAD RECALCULADA %f \n: ",luciernagas[j].luc_intensidad);
-					printf("\n");
+//					imprimir_salida("INTENSIDAD RECALCULADA %f \n: ",luciernagas[j].luc_intensidad);
+//					imprimir_salida("\n");
 
 
 
@@ -305,14 +345,14 @@ void correr_algoritmo(int numcorridas)
 		/*ordeno la poblacion de luciernagas por brillo*/
 		ordenar_luciernagas();
 
-		printf("LUCIERNAGA 0 iteracion %d: ",t);
+		imprimir_salida("LUCIERNAGA 0 iteracion %d: ",t);
 		for(i=0;i < 10;i++)
 		{					
-			printf("%d ",luciernagas[0].luc_numeros[i]);
+			imprimir_salida("%d ",luciernagas[0].luc_numeros[i]);
 			
 		}
-		printf("BRILLO 0: %f",luciernagas[0].luc_intensidad);
-		printf("\n");
+		imprimir_salida("BRILLO 0: %f",luciernagas[0].luc_intensidad);
+		imprimir_salida("\n");
 
 		if((bri_ant == luciernagas[0].luc_intensidad) && (luciernagas[0].luc_intensidad != 0))
 		{
@@ -328,14 +368,14 @@ void correr_algoritmo(int numcorridas)
 
 			luciernagas[0].luc_intensidad = calcular_func_objetivo2(operacion,luciernagas[0].luc_numeros);
 
-			printf("LUCIERNAGA 0 iteracion %d cambiada: ",t);
+			imprimir_salida("LUCIERNAGA 0 iteracion %d cambiada: ",t);
 			for(i=0;i < 10;i++)
 			{					
-				printf("%d ",luciernagas[0].luc_numeros[i]);
+				imprimir_salida("%d ",luciernagas[0].luc_numeros[i]);
 			
 			}
-			printf("BRILLO 0 cambiada: %f",luciernagas[0].luc_intensidad);
-			printf("\n");
+			imprimir_salida("BRILLO 0 cambiada: %f",luciernagas[0].luc_intensidad);
+			imprimir_salida("\n");
 
 			cont_brillo = 0;
 
@@ -350,14 +390,14 @@ void correr_algoritmo(int numcorridas)
 
 	}
 
-		printf("LUCIERNAGA 0: ");
+		imprimir_salida("LUCIERNAGA 0: ");
 		for(i=0;i < 10;i++)
 		{					
-			printf("%d ",luciernagas[0].luc_numeros[i]);
+			imprimir_salida("%d ",luciernagas[0].luc_numeros[i]);
 			
 		}
-		printf("BRILLO 0: %f",luciernagas[0].luc_intensidad);
-		printf("\n");
+		imprimir_salida("BRILLO 0: %f",luciernagas[0].luc_intensidad);
+		imprimir_salida("\n");
 
 
 }
@@ -607,7 +647,7 @@ void acercar_luciernaga4(int array_mayor[10],int array_menor[10])
 	/*calculo beta*/
 	beta = 1 / (1 + (gama*pow(dist,2)));
 
-	printf("beta: %f\n",beta);
+	imprimir_salida("beta: %f\n",beta);
 
 
 	/*- si son iguales los numeros en la misma posicion en array mayor y menor, lleno array destino con ese numero
@@ -627,7 +667,7 @@ void acercar_luciernaga4(int array_mayor[10],int array_menor[10])
 			/*genera un numero random flotante*/
 			nrandom = (float)rand()/(float)(RAND_MAX/1);
 
-			printf("%f\n",nrandom);
+			imprimir_salida("%f\n",nrandom);
 
 			if(nrandom < beta)
 			{
@@ -963,7 +1003,7 @@ int main(int argc, char *argv[])
     	GtkWidget *vbox;
     	GtkWidget *bbox;
     	GtkWidget *boton;
-    	GtkWidget *entry[3];
+    	GtkWidget *entry[10];
     	GtkWidget *frame;
     	GtkWidget *table;
 
@@ -972,17 +1012,16 @@ int main(int argc, char *argv[])
     	GtkWidget *toperaciones;
     	GtkWidget *rbox;
     	GtkWidget *rentry; 
-    	GtkWidget *ropsuma;
-    	GtkWidget *ropresta;
+//    	GtkWidget *ropsuma;
+//    	GtkWidget *ropresta;
 
 		//parametros
     	GtkWidget *fparametros;
-    	GtkWidget *eparametros[5]; 
     	GtkWidget *tparametros;
 
-    	GtkWidget *lparametros[5];
-    	GtkWidget *aparametros[5]; 
-    	GtkWidget *sparametros[5]; 
+    	GtkWidget *lparametros[5]; //labels
+//    	GtkWidget *aparametros[5]; //adjustments
+    	GtkWidget *sparametros[5]; //spin buttons
 		//0 - cant de iteraciones
 		//1 - cant de luciernagas
 		//2 - alfa
@@ -1009,21 +1048,21 @@ int main(int argc, char *argv[])
     	entry[1] = make_entry_with_label(GTK_TABLE(table), "Operador 2", 0,1,1,2,5);
     	entry[2] = make_entry_with_label(GTK_TABLE(table), "Resultado", 0,1,2,3,5);
 
-		//radio de operaciones
+		//radio buttons de operaciones
 	   	foperaciones = gtk_frame_new("Tipo de Operación");
     	toperaciones = gtk_table_new(2,2, FALSE);
     	gtk_box_pack_start(GTK_BOX(vbox), foperaciones, FALSE, FALSE, 0);
     	gtk_container_add(GTK_CONTAINER(foperaciones), toperaciones);
 
 
-//		rbox = gtk_vbox_new (TRUE, 1);
-		ropsuma = gtk_radio_button_new_with_label(NULL, "Suma");
+
+		entry[3] = gtk_radio_button_new_with_label(NULL, "Suma");
 //		gtk_container_add (GTK_CONTAINER (ropsuma), rentry);
-		ropresta = gtk_radio_button_new_with_label_from_widget (GTK_RADIO_BUTTON (ropsuma),
+		entry[4] = gtk_radio_button_new_with_label_from_widget (GTK_RADIO_BUTTON (entry[3]),
 				                    "Resta");
 
-		gtk_table_attach_defaults(toperaciones, ropsuma,0 ,1, 0, 1);
-		gtk_table_attach_defaults(toperaciones, ropresta,0 ,1, 1, 2);
+		gtk_table_attach_defaults(toperaciones, entry[3],0 ,1, 0, 1);
+		gtk_table_attach_defaults(toperaciones, entry[4],0 ,1, 1, 2);
 
 //		gtk_box_pack_start(GTK_BOX (rbox), ropsuma, TRUE, TRUE, 1);
 //		gtk_box_pack_start(GTK_BOX (rbox), ropresta, TRUE, TRUE, 1);
@@ -1038,17 +1077,17 @@ int main(int argc, char *argv[])
     	gtk_box_pack_start(GTK_BOX(vbox), fparametros, FALSE, FALSE, 0);
     	gtk_container_add(GTK_CONTAINER(fparametros), tparametros);
 	
-		aparametros[0] = gtk_adjustment_new (10.0, 1, 1000.0, 1.0,5.0, 0.0); //cantidad de iteraciones
-		aparametros[1] = gtk_adjustment_new (100.0, 1, 1000.0, 1.0,5.0, 0.0); //cantidad de luciernagas
-		aparametros[2] = gtk_adjustment_new (0.5, 0, 1000.0, 0.001,0.5, 0.1); //alfa
-		aparametros[3] = gtk_adjustment_new (0.1, 0, 1000.0, 0.001,0.5, 0.1); //beta - no se usa
-		aparametros[4] = gtk_adjustment_new (0.002, 0, 1000.0, 0.001,0.5, 0.1); //gamma
+		entry[5] = gtk_adjustment_new (10.0, 1, 1000.0, 1.0,5.0, 0.0); //cantidad de iteraciones
+		entry[6] = gtk_adjustment_new (100.0, 1, 1000.0, 1.0,5.0, 0.0); //cantidad de luciernagas
+		entry[7] = gtk_adjustment_new (0.5, 0, 1000.0, 0.001,0.5, 0.1); //alfa
+		entry[8] = gtk_adjustment_new (0.1, 0, 1000.0, 0.001,0.5, 0.1); //beta - no se usa
+		entry[9] = gtk_adjustment_new (0.002, 0, 1000.0, 0.001,0.5, 0.1); //gamma
 
-		sparametros[0] = gtk_spin_button_new (aparametros[0], 0, 0);
-		sparametros[1] = gtk_spin_button_new (aparametros[1], 0, 0);
-		sparametros[2] = gtk_spin_button_new (aparametros[2], 0, 3);
-		sparametros[3] = gtk_spin_button_new (aparametros[3], 0, 3);
-		sparametros[4] = gtk_spin_button_new (aparametros[4], 0, 3);
+		sparametros[0] = gtk_spin_button_new (entry[5], 0, 0);
+		sparametros[1] = gtk_spin_button_new (entry[6], 0, 0);
+		sparametros[2] = gtk_spin_button_new (entry[7], 0, 3);
+		sparametros[3] = gtk_spin_button_new (entry[8], 0, 3);
+		sparametros[4] = gtk_spin_button_new (entry[9], 0, 3);
 
 		lparametros[0] = gtk_label_new("Cantidad de Iteraciones");
 		lparametros[1] = gtk_label_new("Cantidad de Luciernagas");
@@ -1077,11 +1116,12 @@ int main(int argc, char *argv[])
 
     	boton = gtk_button_new_with_label("Calcular");
     	gtk_container_add(GTK_CONTAINER(bbox), boton);
-    	g_signal_connect_swapped(G_OBJECT(boton), "clicked", G_CALLBACK(cargar_operadores), entry);
+    	g_signal_connect(G_OBJECT(boton), "clicked", G_CALLBACK(cargar_operadores), entry);
     	boton = gtk_button_new_from_stock(GTK_STOCK_CANCEL);
-    	g_signal_connect(G_OBJECT(boton), "clicked", G_CALLBACK(gtk_main_quit), NULL);
+//    	g_signal_connect(G_OBJECT(boton), "clicked", G_CALLBACK(gtk_main_quit), NULL);
     	gtk_container_add(GTK_CONTAINER(bbox), boton);
     	gtk_widget_show_all(window);
+		mostrar_resultados();
     	gtk_main();
 	}else{
 
@@ -1093,13 +1133,13 @@ int main(int argc, char *argv[])
 			resultado = argv[3];
 			operacion =  atoi(argv[4]);
 
-			printf("%s %s %s\n",toperador1,toperador2,resultado);
-			printf("%d %d %d\n",strlen(toperador1),strlen(toperador2),strlen(resultado));
-			printf("operacion: %d\n",operacion);
+//			printf("%s %s %s\n",toperador1,toperador2,resultado);
+//			printf("%d %d %d\n",strlen(toperador1),strlen(toperador2),strlen(resultado));
+//			printf("operacion: %d\n",operacion);
 
 		}else{
 
-			printf("uno de los operandos tiene mas de 5 caracteres\n");
+//			printf("uno de los operandos tiene mas de 5 caracteres\n");
 			return 0;
 
 		}
@@ -1111,9 +1151,10 @@ int main(int argc, char *argv[])
 	}
 
 
-	procesar_letras();
+/*	procesar_letras();
 	iniciar_luciernagas(n_luc);
-	correr_algoritmo(n_it);
+	correr_algoritmo(n_it);*/
+
 
     return 0;
 
