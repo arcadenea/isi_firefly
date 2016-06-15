@@ -11,13 +11,18 @@ GtkWidget *window;
 void mostrar_ventana_resultados()
 {
 
-gtk_widget_show_all(window);
+	gtk_widget_show_all(window);
 
 }
 
 void mostrar_resultados()
 {
 		
+		/*
+			codigo de textview de GTK2+, licencia LGPL v2.1
+			obtenido de la documentacion contenida en https://developer.gnome.org/gtk2/stable/
+		*/
+
 		printf("ventana nueva\n");
 		GtkWidget *swindow;
 		GtkWidget *vsalida;
@@ -56,8 +61,16 @@ void mostrar_resultados()
 //    	gtk_main();
 }
 
+
+
 void imprimir_salida(const char *format, ...)
 {
+
+	/* codigo basado en el printf de c, obtenido de
+   	   http://stackoverflow.com/questions/4867229/code-for-printf-function-in-c
+   	   adaptado a la libreria GTK2+, licencia LGPL 2.1
+       codigo obtenido de la documentacion contenida en https://developer.gnome.org/gtk2/stable/
+	*/
 		va_list arg;
 		int done;
 		char salida[256];
@@ -69,8 +82,8 @@ void imprimir_salida(const char *format, ...)
 		va_end (arg);
 
 		//ponemos el cursor al final del buffer
-		gtk_text_buffer_get_end_iter(buffer, &iter); //Get the end of the buffer
-		gtk_text_buffer_place_cursor(buffer, &iter); //set the cursor at the end of the buffer
+		gtk_text_buffer_get_end_iter(buffer, &iter); 
+		gtk_text_buffer_place_cursor(buffer, &iter); 
 
 		//imprimimos la salida
 		gtk_text_buffer_insert_at_cursor(buffer, salida, strlen(salida));

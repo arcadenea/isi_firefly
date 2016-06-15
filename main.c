@@ -373,14 +373,17 @@ void correr_algoritmo(int numiteraciones)
 
 }
 
-/*
-	La implementacion del ordenamiento bubble sort
-	se obtuvo de la siguiente url:
-	http://www.programmingsimplified.com/c/source-code/c-program-bubble-sort
-*/
+
 
 void ordenar_luciernagas()
 {
+
+	/*
+		La implementacion del ordenamiento bubble sort
+		se obtuvo de la siguiente url:
+		http://www.programmingsimplified.com/c/source-code/c-program-bubble-sort
+	*/
+
 
 	/*variables de control*/
 	int i,j;
@@ -586,7 +589,7 @@ void alejar_luciernaga(int array_numeros[10])
 
 	}while(posicion == valor1);	
 
-	
+	/*luego se intercambian los valores de las posiciones*/	
 	valor2 =  array_numeros[valor1];
 
 	array_numeros[posicion] = valor2;
@@ -745,6 +748,13 @@ int main(int argc, char *argv[])
 
 	if(argc == 1)
 	{
+
+		/* 
+			codigo de gui de GTK2+, licencia LGPL 2.1
+		   obtenido de https://developer.gnome.org/gtk-tutorial/stable/	
+		   y de https://developer.gnome.org/gtk2/stable/
+		*/
+
     	gtk_init(&argc, &argv);
 	
 		GtkWidget *window;
