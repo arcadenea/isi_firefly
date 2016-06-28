@@ -15,6 +15,11 @@ const char *toperador1;
 const char *toperador2;
 const char *resultado;
 
+int longop1 = 10;/*longitud operador 1*/
+int longop2 = 10;/*longitud operador 2*/
+int longres = 10;/*longitud resultado*/
+
+
 /*constantes*/
 int n_luc = 200;/*numero total de luciernagas*/
 int n_it = 10;/*numero total de iteraciones*/
@@ -145,13 +150,17 @@ void procesar_letras()
 	int i,j;
 	char *temp_letras;/*array donde almaceno temporalmente todas las letras*/
 	int k = 0;
-	
-	
-	/*alojo memoria para el array temporal donde concateno los strings*/
-	temp_letras = (char*)malloc(15*sizeof(char));
+	int flag = 0;
+		
+	/*longitud del array temporal*/
+	int tempnum = 0;
+	tempnum = longop1 + longop2 + longres;
 
+	/*alojo memoria para el array temporal donde concateno los strings*/
+	temp_letras = (char*)malloc(tempnum * sizeof(char));
+	
 	/*pongo a cero temp_letras*/	
-	memset(temp_letras,0,15);
+	memset(temp_letras,0,31);
 	memset(array_letras,'_',10);
 
 	/*concateno los 3 strings en 1*/
@@ -159,7 +168,7 @@ void procesar_letras()
 	strcat(temp_letras,toperador2);
 	strcat(temp_letras,resultado);
 
-	//printf("ARRAY TEMPORAL: %s\n",temp_letras);
+	printf("ARRAY TEMPORAL: %s\n",temp_letras);
 
 	/*busco letras dentro del string que no se repiten*/
 	
@@ -170,6 +179,13 @@ void procesar_letras()
 			if(temp_letras[i] != '_')
 			{
 		
+				if(k > 9)
+				{
+					imprimir_salida("solucion no factible\n");
+					flag = 1;
+					break;
+				}	
+
 				array_letras[k] = temp_letras[i];
 				
 
@@ -189,7 +205,7 @@ void procesar_letras()
 				
 			}
 			
-			if(k >= 10)break;
+			if(flag == 1)break;
 
 
 		}		
@@ -210,6 +226,10 @@ void procesar_letras()
 	}
 
 	imprimir_salida("LONGITUD ARRAY LETRAS QUE NO SE REPITEN: %d\n",cant_letras);
+
+	printf("cantidad de letras que no se repiten: %d\n",strlen(array_letras));
+
+	free(temp_letras);
 
 
 }
@@ -373,17 +393,14 @@ void correr_algoritmo(int numiteraciones)
 
 }
 
-
+/*
+	La implementacion del ordenamiento bubble sort
+	se obtuvo de la siguiente url:
+	http://www.programmingsimplified.com/c/source-code/c-program-bubble-sort
+*/
 
 void ordenar_luciernagas()
 {
-
-	/*
-		La implementacion del ordenamiento bubble sort
-		se obtuvo de la siguiente url:
-		http://www.programmingsimplified.com/c/source-code/c-program-bubble-sort
-	*/
-
 
 	/*variables de control*/
 	int i,j;
@@ -589,7 +606,7 @@ void alejar_luciernaga(int array_numeros[10])
 
 	}while(posicion == valor1);	
 
-	/*luego se intercambian los valores de las posiciones*/	
+	
 	valor2 =  array_numeros[valor1];
 
 	array_numeros[posicion] = valor2;
@@ -749,12 +766,7 @@ int main(int argc, char *argv[])
 	if(argc == 1)
 	{
 
-		/* 
-			codigo de gui de GTK2+, licencia LGPL 2.1
-		   obtenido de https://developer.gnome.org/gtk-tutorial/stable/	
-		   y de https://developer.gnome.org/gtk2/stable/
-		*/
-
+		/*codigo de la gui de GTK2+, licencia LGPL 2.1*/
     	gtk_init(&argc, &argv);
 	
 		GtkWidget *window;
@@ -802,9 +814,9 @@ int main(int argc, char *argv[])
     	gtk_box_pack_start(GTK_BOX(vbox), frame, FALSE, FALSE, 0);
     	gtk_container_add(GTK_CONTAINER(frame), table);
 
-    	entry[0] = make_entry_with_label(GTK_TABLE(table), "Operador 1", 0,1,0,1,5);
-    	entry[1] = make_entry_with_label(GTK_TABLE(table), "Operador 2", 0,1,1,2,5);
-    	entry[2] = make_entry_with_label(GTK_TABLE(table), "Resultado", 0,1,2,3,5);
+    	entry[0] = make_entry_with_label(GTK_TABLE(table), "Operador 1", 0,1,0,1,longop1);
+    	entry[1] = make_entry_with_label(GTK_TABLE(table), "Operador 2", 0,1,1,2,longop2);
+    	entry[2] = make_entry_with_label(GTK_TABLE(table), "Resultado", 0,1,2,3,longres);
     
 
 		//PARTE NUEVA
