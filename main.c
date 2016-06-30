@@ -107,6 +107,31 @@ GtkWidget *make_entry_with_label(GtkTable *table,
 }
 
 
+/*Muestra un mensaje en un cuadro de diálogo
+	Autor: Gabriel Ernesto Cabral
+*/
+void mostrar_mensaje (char *message) {
+	GtkWidget *dialog, *label, *content_area;
+
+	dialog = gtk_dialog_new_with_buttons ("",
+                                         NULL,
+                                         GTK_DIALOG_MODAL,
+                                         GTK_STOCK_OK,
+                                         GTK_RESPONSE_NONE,
+                                         NULL);
+	content_area = gtk_dialog_get_content_area (GTK_DIALOG (dialog));
+	label = gtk_label_new (message);
+
+	g_signal_connect_swapped (dialog,
+                             "response",
+                             G_CALLBACK (gtk_widget_destroy),
+                             dialog);
+
+	gtk_container_add (GTK_CONTAINER (content_area), label);
+	gtk_widget_show_all (dialog);
+}
+
+
 void cargar_operadores(GtkWidget *entry[])
 {
 	
@@ -182,6 +207,7 @@ void procesar_letras()
 				if(k > 9)
 				{
 					imprimir_salida("solucion no factible\n");
+					mostrar_mensaje ("solución no factible");
 					flag = 1;
 					break;
 				}	
