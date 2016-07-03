@@ -193,7 +193,7 @@ void procesar_letras()
 	strcat(temp_letras,toperador2);
 	strcat(temp_letras,resultado);
 
-	printf("ARRAY TEMPORAL: %s\n",temp_letras);
+	//printf("ARRAY TEMPORAL: %s\n",temp_letras);
 
 	/*busco letras dentro del string que no se repiten*/
 	
@@ -782,7 +782,7 @@ int calcular_func_objetivo(int operacion,int array_num[10])
 	if((op1 == -1)||(op2 == -1)||(op3 == -1))
 	{
 		
-		//ac = pow(10,3);/*devuelve 10 a la 5*/
+		//ac = pow(10,5);/*devuelve 10 a la 5*/
 
 	}else{	
 
