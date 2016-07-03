@@ -31,7 +31,7 @@ int operacion = SUMA;/*operacion a realizar*/
 
 double alfa = 0.5;		
 double betaini = 1.0;           
-double gama = 0.002;
+double gama = 0.1;
 
 int bri_ant = 0;/*brillo de la luciernaga 0 en la iteracion anterior*/
 int cont_brillo = 0;/*cantidad de veces que la luciernaga 0 brille igual*/
@@ -140,8 +140,8 @@ void cargar_operadores(GtkWidget *entry[])
 	toperador2 = gtk_entry_get_text(GTK_ENTRY(entry[1]));
 	resultado = gtk_entry_get_text(GTK_ENTRY(entry[2]));
 
-	imprimir_salida("Operador 1: %s \n",toperador1);
-	imprimir_salida("Operador 2: %s \n",toperador2);
+	imprimir_salida("Operando 1: %s \n",toperador1);
+	imprimir_salida("Operando 2: %s \n",toperador2);
 	imprimir_salida("Resultado: %s \n",resultado);
 
 	//PARTE NUEVA
@@ -253,7 +253,7 @@ void procesar_letras()
 
 	imprimir_salida("LONGITUD ARRAY LETRAS QUE NO SE REPITEN: %d\n",cant_letras);
 
-	printf("cantidad de letras que no se repiten: %d\n",strlen(array_letras));
+	//printf("cantidad de letras que no se repiten: %d\n",strlen(array_letras));
 
 	free(temp_letras);
 
@@ -299,7 +299,21 @@ void correr_algoritmo(int numiteraciones)
 	int t=0;
 
 	/*puntero al array de distancias*/
-	int *distancia;
+	//int *distancia;
+
+	int op1,op2,op3;
+
+	FILE *plotdatos;
+	FILE *plotdatos2;
+
+	plotdatos = fopen("plotdatos.dat","w");
+	plotdatos2 = fopen("plotdatos2.dat","w");
+
+	imprimir_salida("I:Iteracion\nMB:Mejor Brillo\nBP:Brillo Promedio\n");
+
+
+	imprimir_salida("I	MB	BP\n");
+
 
 	/*algoritmo firefly*/
 	while(t < numiteraciones)
@@ -312,7 +326,9 @@ void correr_algoritmo(int numiteraciones)
 				
 				if((luciernagas[i].luc_intensidad) < (luciernagas[j].luc_intensidad))
 				{
-					
+
+					int *distancia;					
+
 					/*calculo distancia manhattan para cada letra*/
 					distancia = calcular_distancia(luciernagas[i].luc_numeros,luciernagas[j].luc_numeros);
 
@@ -324,6 +340,8 @@ void correr_algoritmo(int numiteraciones)
 
 					/*recalculo funcion objetivo*/
 					luciernagas[j].luc_intensidad = calcular_func_objetivo(operacion,luciernagas[j].luc_numeros);
+
+					free(distancia);
 
 				}
 
@@ -343,7 +361,7 @@ void correr_algoritmo(int numiteraciones)
 		}
 
 		/*si contador de brillo es igual a 5, se llama a la funcion de alejar la luciernaga de mayor brillo*/
-		if(cont_brillo == 5)
+		if(cont_brillo == 2)
 		{
 
 			alejar_luciernaga(luciernagas[0].luc_numeros);
@@ -352,22 +370,25 @@ void correr_algoritmo(int numiteraciones)
 
 			cont_brillo = 0;
 
+			ordenar_luciernagas();
+
 			
 		}
 
 		/*Se imprime luciernaga de mas brillo por iteracion*/
-		imprimir_salida("\n");
-		imprimir_salida("LUCIERNAGA 0 iteracion %d: ",t);
+		/*imprimir_salida("\n");
+		imprimir_salida("Iteracion numero: %d\n",t);
+		imprimir_salida("Luciernaga de mayor brillo: ");	
 		for(i=0;i < 10;i++)
 		{					
 
 			imprimir_salida("%d ",luciernagas[0].luc_numeros[i]);
+
 			
 		}
 		imprimir_salida("\n");
-		imprimir_salida("BRILLO 0: %d",luciernagas[0].luc_intensidad);
-		imprimir_salida("\n");
-
+		imprimir_salida("Brillo: %d",luciernagas[0].luc_intensidad);
+		imprimir_salida("\n");*/
 
 		/*se almacena sumatoria de brillos por iteracion*/
 		for(i=0;i < n_luc;i++)
@@ -380,9 +401,16 @@ void correr_algoritmo(int numiteraciones)
 			/*se calcula el valor promedio de brillo por iteracion*/
 			prom_brillo = (float)prom_brillo/(float)n_luc;
 
+			fprintf(plotdatos,"%d	%d\n",t,luciernagas[0].luc_intensidad);
+			fprintf(plotdatos2,"%d	%f\n",t,prom_brillo);
+
+
 			/*se imprime brillo promedio por iteracion*/
-			imprimir_salida("BRILLO PROMEDIO ITERACION %d: %f",t,prom_brillo);
-			imprimir_salida("\n");
+			/*imprimir_salida("Brillo promedio: %f\n",prom_brillo);
+			imprimir_salida("\n");*/
+
+			//imprimir_salida("Iteracion	Mejor Brillo	Brillo Promedio");
+			imprimir_salida("%d	%d	%f\n",t,luciernagas[0].luc_intensidad,prom_brillo);
 	
 			/*se calcula brillo total promedio*/
 			total_prom_br = total_prom_br + prom_brillo;
@@ -407,14 +435,40 @@ void correr_algoritmo(int numiteraciones)
 	imprimir_salida("\n");
 	imprimir_salida("BRILLO FINAL: %d",luciernagas[0].luc_intensidad); 
 	imprimir_salida("\n"); 
-	imprimir_salida("=================================================\n");
+
+
+	op1 = calcular_operador(toperador1,luciernagas[0].luc_numeros);
+	op2 = calcular_operador(toperador2,luciernagas[0].luc_numeros);	
+	op3 = calcular_operador(resultado,luciernagas[0].luc_numeros);
+
+	if(operacion == SUMA)
+	{
+		imprimir_salida("%s + %s = %s\n",toperador1,toperador2,resultado);
+		imprimir_salida("%d + %d = %d\n",op1,op2,op3);
+	}else{
+		imprimir_salida("%s - %s = %s\n",toperador1,toperador2,resultado);
+		imprimir_salida("%d - %d = %d\n",op1,op2,op3);
+	}
+
+
+
+	imprimir_salida("====================================================\n");
 
 	/*calculo del brillo total promedio por iteraciones*/
 	total_prom_br = total_prom_br/(float)numiteraciones;
+
+	fclose(plotdatos);
+	fclose(plotdatos2);
+
+
+	system("gnuplot -persistent script.scp");
+	system("gnuplot -persistent script2.scp");
+
 		
 	/*se liberan punteros*/
-	free(distancia);
+	//free(distancia);
 	free(luciernagas);
+
 
 
 }
@@ -482,7 +536,7 @@ void acercar_luciernaga(int array_mayor[10],int array_menor[10],int distancia[10
 	}
 
 	/*calculo beta*/
-	beta = 1 / (1 + (gama*pow(dist,2)));
+	//beta = 1 / (1 + (gama*pow(dist,2)));
 
 	/*- si son iguales los numeros en la misma posicion en array mayor y menor, lleno array destino con ese numero
 	  - si random es menor a beta lleno posicion de array_destino con array menor, si no con array mayor
@@ -492,24 +546,29 @@ void acercar_luciernaga(int array_mayor[10],int array_menor[10],int distancia[10
 	{
 
 		/*si los valores de las 2 luciernagas en la posicion son iguales, se asigna array destino con ese valor*/
-		if(array_mayor[i] == array_menor[i])
+		//if(array_mayor[i] == array_menor[i])
+		if(distancia[i] == 0)
 		{
 
 			array_destino[i] = array_mayor[i];
 
-		}else{
+		}else if(distancia[i] > 0){
 
 			/*genera un numero aleatorio flotante*/
 			nrandom = (float)rand()/(float)(RAND_MAX/1);
+
+			beta = 1 / (1 + (gama * pow(distancia[i],2)));
+
+			//printf("%f %f %d %d\n",nrandom,beta,distancia[i],i);
 
 			/*si el numero aleatorio es menor al beta, se asigna el valor de la luciernaga de menor brillo,
 			  sino se asigna el valor de la luciernaga de mayor brillo.
 			*/
 			if(nrandom < beta)
 			{
-				numero = array_menor[i];
-			}else if(nrandom >= beta){
 				numero = array_mayor[i];
+			}else if(nrandom >= beta){
+				numero = array_menor[i];
 			}
 
 			/*verifica que el valor de numero no haya sido utilizado anteriormente*/
@@ -653,13 +712,15 @@ int *calcular_distancia(int array1[10],int array2[10])
 
 	memset(array_temp,0,10);
 
-	for(i=0;i < cant_letras;i++)
+	for(i=0;i < 10;i++)
 	{
 
 		valor = abs(array1[i] - array2[i]);
 		array_temp[i] = valor;
+		//printf("%d ",valor);
 	
-	}
+	}	
+	//printf("\n");
 
 	return array_temp;
 
@@ -721,7 +782,7 @@ int calcular_func_objetivo(int operacion,int array_num[10])
 	if((op1 == -1)||(op2 == -1)||(op3 == -1))
 	{
 		
-		ac = pow(10,5);/*devuelve 10 a la 5*/
+		//ac = pow(10,3);/*devuelve 10 a la 5*/
 
 	}else{	
 
@@ -760,10 +821,10 @@ int calcular_operador(const char *operador,int array_num[10])
 		{
 
 			/*verifico que el digito de mas a la izquierda del operador sea distinto de 0*/
-			if((i==0) && (operador[i] == array_letras[j]) && (array_num[j] == 0))
+			/*if((i==0) && (operador[i] == array_letras[j]) && (array_num[j] == 0))
 			{
 				return -1;				
-			}
+			}*/
 
 			
 			if(operador[i] == array_letras[j])
@@ -840,8 +901,8 @@ int main(int argc, char *argv[])
     	gtk_box_pack_start(GTK_BOX(vbox), frame, FALSE, FALSE, 0);
     	gtk_container_add(GTK_CONTAINER(frame), table);
 
-    	entry[0] = make_entry_with_label(GTK_TABLE(table), "Operador 1", 0,1,0,1,longop1);
-    	entry[1] = make_entry_with_label(GTK_TABLE(table), "Operador 2", 0,1,1,2,longop2);
+    	entry[0] = make_entry_with_label(GTK_TABLE(table), "Operando 1", 0,1,0,1,longop1);
+    	entry[1] = make_entry_with_label(GTK_TABLE(table), "Operando 2", 0,1,1,2,longop2);
     	entry[2] = make_entry_with_label(GTK_TABLE(table), "Resultado", 0,1,2,3,longres);
     
 
@@ -869,7 +930,7 @@ int main(int argc, char *argv[])
 		entry[6] = gtk_adjustment_new (100.0, 1, 1000.0, 1.0,5.0, 0.0); //cantidad de luciernagas
 		entry[7] = gtk_adjustment_new (0.5, 0, 1000.0, 0.001,0.5, 0.1); //alfa
 		entry[8] = gtk_adjustment_new (0.1, 0, 1000.0, 0.001,0.5, 0.1); //beta - no se usa
-		entry[9] = gtk_adjustment_new (0.002, 0, 1000.0, 0.001,0.5, 0.1); //gamma
+		entry[9] = gtk_adjustment_new (0.1, 0, 1000.0, 0.001,0.5, 0.1); //gamma
 
 		sparametros[0] = gtk_spin_button_new (entry[5], 0, 0);
 		sparametros[1] = gtk_spin_button_new (entry[6], 0, 0);

@@ -1,0 +1,7 @@
+set title "Brillo Promedio por Iteracion"
+set xlabel "Iteracion"
+set ylabel "Brillo"
+plot 'plotdatos2.dat' using 1:2 title 'Brillo Promedio'with linespoint
+
+
+
