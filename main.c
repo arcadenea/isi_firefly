@@ -361,13 +361,13 @@ void correr_algoritmo(int numiteraciones)
 		}
 
 		/*si contador de brillo es igual a 5, se llama a la funcion de alejar la luciernaga de mayor brillo*/
-		if(cont_brillo == 2)
+		if(cont_brillo == 5)
 		{
 
 			alejar_luciernaga(luciernagas[0].luc_numeros);
 
 			luciernagas[0].luc_intensidad = calcular_func_objetivo(operacion,luciernagas[0].luc_numeros);
-
+	
 			cont_brillo = 0;
 
 			ordenar_luciernagas();
@@ -460,9 +460,9 @@ void correr_algoritmo(int numiteraciones)
 	fclose(plotdatos);
 	fclose(plotdatos2);
 
-
-	system("gnuplot -persistent script.scp");
-	system("gnuplot -persistent script2.scp");
+	/*llamado a gnuplot para graficar*/
+	//system("gnuplot -persistent script.scp");
+	//system("gnuplot -persistent script2.scp");
 
 		
 	/*se liberan punteros*/
