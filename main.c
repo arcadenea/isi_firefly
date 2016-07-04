@@ -546,7 +546,7 @@ void correr_algoritmo(int numiteraciones)
 			/*se calcula el valor promedio de brillo por iteracion*/
 			prom_brillo = (float)prom_brillo/(float)n_luc;
 
-			fprintf(plotdatos,"%d	%d\n",t,luciernagas[0].luc_intensidad);
+			fprintf(plotdatos,"%d	%d	%d\n",t,luciernagas[0].luc_intensidad, prom_brillo);
 			fprintf(plotdatos2,"%d	%f\n",t,prom_brillo);
 
 
@@ -606,8 +606,8 @@ void correr_algoritmo(int numiteraciones)
 			fclose(plotdatos2);
 
 			/*llamado a gnuplot para graficar*/
-			//system("gnuplot -persistent script.scp");
-			//system("gnuplot -persistent script2.scp");
+			system("gnuplot -persistent script.scp");
+//			system("gnuplot -persistent script2.scp");
 
 		
 			/*se liberan punteros y se ponen variables al estado inicial*/

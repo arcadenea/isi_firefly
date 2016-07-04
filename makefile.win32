@@ -31,13 +31,13 @@ LIBS =
 
 all: $(TARGET)
 
-OBJS += main-gabriel.o result.o
+OBJS += main.o result.o
 
 rm-elf:
 	-rm -f $(TARGET) $(OBJS)
 
 $(TARGET): $(OBJS)
-	$(CC)  $(OBJS) -o $(TARGET) $(LFLAGS) $(LIBS)
+	$(CC)  $(OBJS) -mwindows -o $(TARGET) $(LFLAGS) $(LIBS)
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@

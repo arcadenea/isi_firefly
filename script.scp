@@ -1,7 +1,7 @@
-set title "Brillo Máximo por Iteracion"
+set title "Brillo Máximo y Promedio por Iteracion"
 set xlabel "Iteracion"
 set ylabel "Brillo"
-plot 'plotdatos.dat' using 1:2 title 'Brillo Maximo'with linespoint
+plot 'plotdatos.dat' using 1:2  title 'Brillo Maximo' with lines lt rgb "red", 'plotdatos.dat' using 1:3 title 'Brillo Promedio' with lines
 
 
 
