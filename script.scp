@@ -1,7 +1,13 @@
-set title "Brillo Máximo y Promedio por Iteracion"
+set multiplot layout 2,1
+set title "Mejor Brillo"
 set xlabel "Iteracion"
 set ylabel "Brillo"
-plot 'plotdatos.dat' using 1:2  title 'Brillo Maximo' with lines lt rgb "red", 'plotdatos.dat' using 1:3 title 'Brillo Promedio' with lines
+plot 'plotdatos.dat' using 1:2  title 'Mejor Brillo' with lines lt rgb "red" 
+set title "Brillo Promedio"
+set xlabel "Iteracion"
+set ylabel "Brillo"
+plot'plotdatos.dat' using 1:3 title 'Brillo Promedio' with lines
+unset multiplot
 
 
 
