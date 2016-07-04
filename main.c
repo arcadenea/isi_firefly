@@ -19,6 +19,9 @@ int longop1 = 10;/*longitud operador 1*/
 int longop2 = 10;/*longitud operador 2*/
 int longres = 10;/*longitud resultado*/
 
+int runthreadidle=0; /*si es 1 indica que se debe correr el algoritmo*/
+
+int t=0; /*variable de control para el numero de corridas*/
 
 /*constantes*/
 int n_luc = 200;/*numero total de luciernagas*/
@@ -38,6 +41,15 @@ int cont_brillo = 0;/*cantidad de veces que la luciernaga 0 brille igual*/
 
 float prom_brillo = 0;/*promedio de brillo por iteracion*/
 float total_prom_br = 0;/*promedio total de brillo por iteracion*/
+
+GtkWidget *boton;
+GtkWidget *botonpausa;
+GtkWidget *botonstep;
+GtkWidget *botonstop;
+GtkWidget *botonayuda;
+
+FILE *plotdatos;
+FILE *plotdatos2;
 
 /*struct de luciernaga*/
 typedef struct 
@@ -107,9 +119,7 @@ GtkWidget *make_entry_with_label(GtkTable *table,
 }
 
 
-/*Muestra un mensaje en un cuadro de diálogo
-	Autor: Gabriel Ernesto Cabral
-*/
+/*Muestra un mensaje en un cuadro de diálogo*/
 void mostrar_mensaje (char *message) {
 	GtkWidget *dialog, *label, *content_area;
 
@@ -131,11 +141,148 @@ void mostrar_mensaje (char *message) {
 	gtk_widget_show_all (dialog);
 }
 
+void mostrar_ayuda()
+{
+mostrar_mensaje("Ingrese Operandos: En este área se ingresan los operandos con letras. Está compuesta de:\n\t- Operando 1: primer operando de la suma o resta.\n\t- Operando 2:  segundo operando de la suma o resta.\n\t- Resultado:  resultado de la suma o resta.\n\nTipo de operación: Operación algebraica a realizar. Puede ser Suma o Resta.\n\nParámetros del Algoritmo:\n\t- Cantidad de Iteraciones: número de veces que el algoritmo va a iterar.\n\t- Cantidad de Luciernagas: población total de luciernagas.\n\t- Alfa: valor del parámetro para el acercamiento alfa.\n\t- Gamma: valor del coeficiente de atracción.\n\nBotones de acción:\n\t- Calcular: ejecuta el algoritmo con parámetros establecidos previamente.\n\t- Paso: ejecuta iteración por iteración del algoritmo con parámetros establecidos previamente.\n\t- Pausa: pausar la ejecución del algoritmo. Para continuar la ejecución presionar Calcular o Paso.\n\t- Detener: detiene la ejecución del algoritmo.");
+}
+
+
+/* Función que se utiliza para correr el algoritmo sin bloquear a la GUI*/
+static gboolean thread_func(void *algo)
+{
+
+	if(runthreadidle){
+		gdk_threads_enter();
+		//correr un paso del algoritmo aquí
+		correr_algoritmo(n_it);
+		gdk_threads_leave();
+		g_usleep( 100 );
+	}else{
+
+		g_usleep( 1000 );
+	}
+
+	return( TRUE );
+
+}
+
+int chequear_textboxs(GtkWidget *entry[])
+{
+
+int control=0;
+
+int tl1=gtk_entry_get_text_length(GTK_ENTRY(entry[0]));
+int tl2=gtk_entry_get_text_length(GTK_ENTRY(entry[1]));
+int tl3=gtk_entry_get_text_length(GTK_ENTRY(entry[2]));
+
+	if((tl1==0)||(tl2==0)||(tl3==0))
+	{
+		mostrar_mensaje("Uno o varios operandos están vacíos");
+		runthreadidle=0;
+		t=0;
+		return 1;
+	}
+
+const char *op1=gtk_entry_get_text(GTK_ENTRY(entry[0]));
+const char *op2=gtk_entry_get_text(GTK_ENTRY(entry[1]));
+const char *res=gtk_entry_get_text(GTK_ENTRY(entry[2]));
+
+int i=0;
+
+	for(i=0;i<tl1;i++)
+	{
+		if(!isalpha(op1[i]))
+		{
+			mostrar_mensaje("Los operandos y resultado deben ser caracteres de A-Z");
+			control=1;
+			break;
+		}
+	}
+
+	for(i=0;i<tl2;i++)
+	{
+		if(!isalpha(op2[i]))
+		{
+			mostrar_mensaje("Los operandos y resultado deben ser caracteres de A-Z");
+			control=1;
+			break;		
+		}
+	}
+
+	for(i=0;i<tl3;i++)
+	{
+		if(!isalpha(res[i]))
+		{
+			mostrar_mensaje("Los operandos y resultado deben ser caracteres de A-Z");
+			control=1;
+			break;
+		}
+	}
+
+return control;
+}
+
+void pausa_callback(GtkWidget *entry[])
+{
+//	t=0;
+	runthreadidle=0;
+	gtk_widget_set_sensitive(GTK_WIDGET(boton),TRUE);
+	gtk_widget_set_sensitive(GTK_WIDGET(botonstep),TRUE);
+	gtk_widget_set_sensitive(GTK_WIDGET(botonstop),TRUE);
+}
+
+
+void detener_callback(GtkWidget *entry[])
+{
+	t=0;
+	runthreadidle=0;
+	gtk_widget_set_sensitive(GTK_WIDGET(boton),TRUE);
+	gtk_widget_set_sensitive(GTK_WIDGET(botonstop),FALSE);
+	gtk_widget_set_sensitive(GTK_WIDGET(botonstep),FALSE);
+	gtk_widget_set_sensitive(GTK_WIDGET(botonpausa),FALSE);
+}
+
+
+void paso_callback(GtkWidget *entry[])
+{
+int control=0;
+	if(t==0)
+	{
+		if(chequear_textboxs(entry)) return;
+		cargar_operadores(entry);
+	}
+
+
+	correr_algoritmo(n_it);
+//	gtk_widget_set_sensitive(GTK_WIDGET(botonstop),TRUE);
+//	gtk_widget_set_sensitive(GTK_WIDGET(boton),FALSE);
+}
+
+
+void correr_callback(GtkWidget *entry[])
+{
+
+int control=0;
+	if(t==0)
+	{
+		if(chequear_textboxs(entry)) return;
+		cargar_operadores(entry);
+	}
+
+
+	runthreadidle=1;
+//	correr_algoritmo(numiteraciones);
+	gtk_widget_set_sensitive(GTK_WIDGET(boton),FALSE);
+	gtk_widget_set_sensitive(GTK_WIDGET(botonstop),TRUE);
+	gtk_widget_set_sensitive(GTK_WIDGET(botonpausa),TRUE);
+}
+
 
 void cargar_operadores(GtkWidget *entry[])
 {
 	
 	cant_letras=0;  
+
 	toperador1 = gtk_entry_get_text(GTK_ENTRY(entry[0]));
 	toperador2 = gtk_entry_get_text(GTK_ENTRY(entry[1]));
 	resultado = gtk_entry_get_text(GTK_ENTRY(entry[2]));
@@ -159,10 +306,17 @@ void cargar_operadores(GtkWidget *entry[])
 	alfa = gtk_adjustment_get_value(entry[7]); //alfa
 	gama = gtk_adjustment_get_value(entry[9]); //gamma
 
+	plotdatos = fopen("plotdatos.dat","w");
+	plotdatos2 = fopen("plotdatos2.dat","w");
+
 	procesar_letras();
 	iniciar_luciernagas(n_luc);
-	correr_algoritmo(n_it);
+//	correr_algoritmo(n_it);
 	mostrar_ventana_resultados();
+
+	imprimir_salida("I:Iteracion\nMB:Mejor Brillo\nBP:Brillo Promedio\n");
+	imprimir_salida("I	MB	BP\n");
+
 	//FIN PARTE NUEVA
 
 }
@@ -207,7 +361,7 @@ void procesar_letras()
 				if(k > 9)
 				{
 					imprimir_salida("solucion no factible\n");
-					mostrar_mensaje ("solución no factible");
+					mostrar_mensaje("solución no factible");
 					flag = 1;
 					break;
 				}	
@@ -296,27 +450,18 @@ void correr_algoritmo(int numiteraciones)
 	int i,j,k;
 	
 	/*variable de control para el numero de corridas*/
-	int t=0;
+	//int t=0;
 
 	/*puntero al array de distancias*/
 	//int *distancia;
 
 	int op1,op2,op3;
 
-	FILE *plotdatos;
-	FILE *plotdatos2;
-
-	plotdatos = fopen("plotdatos.dat","w");
-	plotdatos2 = fopen("plotdatos2.dat","w");
-
-	imprimir_salida("I:Iteracion\nMB:Mejor Brillo\nBP:Brillo Promedio\n");
-
-
-	imprimir_salida("I	MB	BP\n");
 
 
 	/*algoritmo firefly*/
-	while(t < numiteraciones)
+//	while(t < numiteraciones)
+	if(t < numiteraciones)
 	{
 
 		for(i=0;i < n_luc;i++)
@@ -421,53 +566,59 @@ void correr_algoritmo(int numiteraciones)
 
 		t++;
 
-	}
-
-	/*impresion de resultados finales*/
-	imprimir_salida("\n");
-	imprimir_salida("RESULTADO FINAL: "); 
-	for(i=0;i < 10;i++)
-	{					
-
-		imprimir_salida("%c=%d ",array_letras[i],luciernagas[0].luc_numeros[i]); 
-			
-	}
-	imprimir_salida("\n");
-	imprimir_salida("BRILLO FINAL: %d",luciernagas[0].luc_intensidad); 
-	imprimir_salida("\n"); 
-
-
-	op1 = calcular_operador(toperador1,luciernagas[0].luc_numeros);
-	op2 = calcular_operador(toperador2,luciernagas[0].luc_numeros);	
-	op3 = calcular_operador(resultado,luciernagas[0].luc_numeros);
-
-	if(operacion == SUMA)
-	{
-		imprimir_salida("%s + %s = %s\n",toperador1,toperador2,resultado);
-		imprimir_salida("%d + %d = %d\n",op1,op2,op3);
 	}else{
-		imprimir_salida("%s - %s = %s\n",toperador1,toperador2,resultado);
-		imprimir_salida("%d - %d = %d\n",op1,op2,op3);
-	}
+			runthreadidle=0;
+			/*impresion de resultados finales*/
+			imprimir_salida("\n");
+			imprimir_salida("RESULTADO FINAL: "); 
+			for(i=0;i < 10;i++)
+			{					
+
+				imprimir_salida("%c=%d ",array_letras[i],luciernagas[0].luc_numeros[i]); 
+			
+			}
+			imprimir_salida("\n");
+			imprimir_salida("BRILLO FINAL: %d",luciernagas[0].luc_intensidad); 
+			imprimir_salida("\n"); 
+
+
+			op1 = calcular_operador(toperador1,luciernagas[0].luc_numeros);
+			op2 = calcular_operador(toperador2,luciernagas[0].luc_numeros);	
+			op3 = calcular_operador(resultado,luciernagas[0].luc_numeros);
+
+			if(operacion == SUMA)
+			{
+				imprimir_salida("%s + %s = %s\n",toperador1,toperador2,resultado);
+				imprimir_salida("%d + %d = %d\n",op1,op2,op3);
+			}else{
+				imprimir_salida("%s - %s = %s\n",toperador1,toperador2,resultado);
+				imprimir_salida("%d - %d = %d\n",op1,op2,op3);
+			}
 
 
 
-	imprimir_salida("====================================================\n");
+			imprimir_salida("====================================================\n");
 
-	/*calculo del brillo total promedio por iteraciones*/
-	total_prom_br = total_prom_br/(float)numiteraciones;
+			/*calculo del brillo total promedio por iteraciones*/
+			total_prom_br = total_prom_br/(float)numiteraciones;
 
-	fclose(plotdatos);
-	fclose(plotdatos2);
+			fclose(plotdatos);
+			fclose(plotdatos2);
 
-	/*llamado a gnuplot para graficar*/
-	//system("gnuplot -persistent script.scp");
-	//system("gnuplot -persistent script2.scp");
+			/*llamado a gnuplot para graficar*/
+			//system("gnuplot -persistent script.scp");
+			//system("gnuplot -persistent script2.scp");
 
 		
-	/*se liberan punteros*/
-	//free(distancia);
-	free(luciernagas);
+			/*se liberan punteros y se ponen variables al estado inicial*/
+			//free(distancia);
+			free(luciernagas);
+			t=0;
+			gtk_widget_set_sensitive(GTK_WIDGET(boton),TRUE);
+			gtk_widget_set_sensitive(GTK_WIDGET(botonstop),FALSE);
+			gtk_widget_set_sensitive(GTK_WIDGET(botonstep),TRUE);
+			gtk_widget_set_sensitive(GTK_WIDGET(botonpausa),FALSE);
+		}
 
 
 
@@ -859,7 +1010,7 @@ int main(int argc, char *argv[])
 		GtkWidget *window;
     	GtkWidget *vbox;
     	GtkWidget *bbox;
-    	GtkWidget *boton;
+//    	GtkWidget *boton;
     	GtkWidget *entry[10]; //PARTE NUEVA: CAMBIAR POR 10
     	GtkWidget *frame;
     	GtkWidget *table;
@@ -888,7 +1039,8 @@ int main(int argc, char *argv[])
 
     	window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     	gtk_window_set_title(GTK_WINDOW(window), "Firefly");
-    	gtk_widget_set_size_request(window, 350, 600); //PARTE NUEVA
+    	gtk_widget_set_size_request(window, 500, 500);
+		gtk_window_set_resizable(window, FALSE);
     	gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER);
     	gtk_container_set_border_width(GTK_CONTAINER(window), 10);
     	g_signal_connect(GTK_WINDOW(window), "delete_event", G_CALLBACK(gtk_main_quit), NULL);
@@ -926,8 +1078,8 @@ int main(int argc, char *argv[])
     	gtk_box_pack_start(GTK_BOX(vbox), fparametros, FALSE, FALSE, 0);
     	gtk_container_add(GTK_CONTAINER(fparametros), tparametros);
 	
-		entry[5] = gtk_adjustment_new (10.0, 1, 1000.0, 1.0,5.0, 0.0); //cantidad de iteraciones
-		entry[6] = gtk_adjustment_new (100.0, 1, 1000.0, 1.0,5.0, 0.0); //cantidad de luciernagas
+		entry[5] = gtk_adjustment_new (100.0, 1, 100000.0, 1.0,5.0, 0.0); //cantidad de iteraciones
+		entry[6] = gtk_adjustment_new (1000.0, 1, 100000.0, 1.0,5.0, 0.0); //cantidad de luciernagas
 		entry[7] = gtk_adjustment_new (0.5, 0, 1000.0, 0.001,0.5, 0.1); //alfa
 		entry[8] = gtk_adjustment_new (0.1, 0, 1000.0, 0.001,0.5, 0.1); //beta - no se usa
 		entry[9] = gtk_adjustment_new (0.1, 0, 1000.0, 0.001,0.5, 0.1); //gamma
@@ -959,18 +1111,37 @@ int main(int argc, char *argv[])
 
     	bbox = gtk_hbutton_box_new();
     	gtk_box_pack_start(GTK_BOX(vbox), bbox, TRUE, TRUE, 3);
-    	gtk_button_box_set_layout(GTK_BUTTON_BOX(bbox), GTK_BUTTONBOX_END);
+    	gtk_button_box_set_layout(GTK_BUTTON_BOX(bbox), GTK_BUTTONBOX_CENTER);
     	gtk_box_set_spacing(GTK_BOX(bbox), 10);
 
     	boton = gtk_button_new_with_label("Calcular");
+    	botonstep = gtk_button_new_with_label("Paso");
+    	botonpausa = gtk_button_new_with_label("Pausa");
+    	botonstop = gtk_button_new_with_label("Detener");
+    	botonayuda = gtk_button_new_with_label("Ayuda");
     	gtk_container_add(GTK_CONTAINER(bbox), boton);
-    	g_signal_connect_swapped(G_OBJECT(boton), "clicked", G_CALLBACK(cargar_operadores), entry);
-    	boton = gtk_button_new_from_stock(GTK_STOCK_CANCEL);
-//    	g_signal_connect(G_OBJECT(boton), "clicked", G_CALLBACK(gtk_main_quit), NULL);
-//    	gtk_container_add(GTK_CONTAINER(bbox), boton);
+    	gtk_container_add(GTK_CONTAINER(bbox), botonstep);
+    	gtk_container_add(GTK_CONTAINER(bbox), botonpausa);
+    	gtk_container_add(GTK_CONTAINER(bbox), botonstop);
+    	gtk_container_add(GTK_CONTAINER(bbox), botonayuda);
+    	g_signal_connect_swapped(G_OBJECT(boton), "clicked", G_CALLBACK(correr_callback), entry);
+    	g_signal_connect_swapped(G_OBJECT(botonstep), "clicked", G_CALLBACK(paso_callback), entry);
+    	g_signal_connect_swapped(G_OBJECT(botonpausa), "clicked", G_CALLBACK(pausa_callback), entry);
+    	g_signal_connect_swapped(G_OBJECT(botonstop), "clicked", G_CALLBACK(detener_callback), entry);
+    	g_signal_connect_swapped(G_OBJECT(botonayuda), "clicked", G_CALLBACK(mostrar_ayuda), entry);
     	gtk_widget_show_all(window);
 		mostrar_resultados(); //PARTE NUEVA
-    	gtk_main();
+
+		gtk_widget_set_sensitive(GTK_WIDGET(botonpausa),FALSE);
+		gtk_widget_set_sensitive(GTK_WIDGET(botonstop),FALSE);
+
+		/*Correr hilo*/
+		g_idle_add( thread_func, NULL );
+
+		gtk_main ();
+
+		gdk_threads_leave();
+
 	}else{
 
 		if((strlen(argv[1]) <= 5) && (strlen(argv[2]) <= 5) && (strlen(argv[3]) <= 5))

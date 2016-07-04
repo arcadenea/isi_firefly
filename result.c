@@ -6,12 +6,16 @@
 
 GtkTextBuffer *buffer;
 GtkWidget *window;
-
+GtkWidget *swindow;
 
 void mostrar_ventana_resultados()
 {
-
+	GtkTextIter iteri;
+	GtkTextIter iterf;
 	gtk_widget_show_all(window);
+	gtk_text_buffer_get_start_iter(buffer, &iteri); 
+	gtk_text_buffer_get_end_iter(buffer, &iterf); 
+	gtk_text_buffer_delete(buffer, &iteri, &iterf);
 
 }
 
@@ -24,7 +28,7 @@ void mostrar_resultados()
 		*/
 
 		printf("ventana nueva\n");
-		GtkWidget *swindow;
+
 		GtkWidget *vsalida;
 		GtkWidget *box;
 		GtkWidget* table;
@@ -87,6 +91,9 @@ void imprimir_salida(const char *format, ...)
 
 		//imprimimos la salida
 		gtk_text_buffer_insert_at_cursor(buffer, salida, strlen(salida));
+
+		GtkAdjustment *adj = gtk_scrolled_window_get_vadjustment(swindow);
+		gtk_adjustment_set_value(adj,gtk_adjustment_get_upper(adj) - gtk_adjustment_get_page_size(adj));
 
 
 }
