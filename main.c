@@ -49,7 +49,7 @@ GtkWidget *botonstop;
 GtkWidget *botonayuda;
 
 FILE *plotdatos;
-FILE *plotdatos2;
+//FILE *plotdatos2;
 
 /*struct de luciernaga*/
 typedef struct 
@@ -307,7 +307,7 @@ void cargar_operadores(GtkWidget *entry[])
 	gama = gtk_adjustment_get_value(entry[9]); //gamma
 
 	plotdatos = fopen("plotdatos.dat","w");
-	plotdatos2 = fopen("plotdatos2.dat","w");
+//	plotdatos2 = fopen("plotdatos2.dat","w");
 
 	procesar_letras();
 	iniciar_luciernagas(n_luc);
@@ -547,7 +547,7 @@ void correr_algoritmo(int numiteraciones)
 			prom_brillo = (float)prom_brillo/(float)n_luc;
 
 			fprintf(plotdatos,"%d	%d	%d\n",t,luciernagas[0].luc_intensidad, prom_brillo);
-			fprintf(plotdatos2,"%d	%f\n",t,prom_brillo);
+//			fprintf(plotdatos2,"%d	%f\n",t,prom_brillo);
 
 
 			/*se imprime brillo promedio por iteracion*/
@@ -603,7 +603,7 @@ void correr_algoritmo(int numiteraciones)
 			total_prom_br = total_prom_br/(float)numiteraciones;
 
 			fclose(plotdatos);
-			fclose(plotdatos2);
+//			fclose(plotdatos2);
 
 			/*llamado a gnuplot para graficar*/
 			system("gnuplot -persistent script.scp");
