@@ -119,7 +119,9 @@ GtkWidget *make_entry_with_label(GtkTable *table,
 }
 
 
-/*Muestra un mensaje en un cuadro de diálogo*/
+/*Muestra un mensaje en un cuadro de diálogo
+obtenido de la documentacion contenida en https://developer.gnome.org/gtk2/stable/
+*/
 void mostrar_mensaje (char *message) {
 	GtkWidget *dialog, *label, *content_area;
 
@@ -141,13 +143,15 @@ void mostrar_mensaje (char *message) {
 	gtk_widget_show_all (dialog);
 }
 
+/*muestra mensaje de ayuda*/
 void mostrar_ayuda()
 {
-mostrar_mensaje("Ingrese Operandos: En este área se ingresan los operandos con letras. Está compuesta de:\n\t- Operando 1: primer operando de la suma o resta.\n\t- Operando 2:  segundo operando de la suma o resta.\n\t- Resultado:  resultado de la suma o resta.\n\nTipo de operación: Operación algebraica a realizar. Puede ser Suma o Resta.\n\nParámetros del Algoritmo:\n\t- Cantidad de Iteraciones: número de veces que el algoritmo va a iterar.\n\t- Cantidad de Luciernagas: población total de luciernagas.\n\t- Alfa: valor del parámetro para el acercamiento alfa.\n\t- Gamma: valor del coeficiente de atracción.\n\nBotones de acción:\n\t- Calcular: ejecuta el algoritmo con parámetros establecidos previamente.\n\t- Paso: ejecuta iteración por iteración del algoritmo con parámetros establecidos previamente.\n\t- Pausa: pausar la ejecución del algoritmo. Para continuar la ejecución presionar Calcular o Paso.\n\t- Detener: detiene la ejecución del algoritmo.");
+mostrar_mensaje("Ingrese Operandos: En este área se ingresan los operandos con letras. Está compuesta de:\n\t- Operando 1: primer operando de la suma o resta.\n\t- Operando 2:  segundo operando de la suma o resta.\n\t- Resultado:  resultado de la suma o resta.\n\nTipo de operación: Operación algebraica a realizar. Puede ser Suma o Resta.\n\nParámetros del Algoritmo:\n\t- Cantidad de Iteraciones: número de veces que el algoritmo va a iterar.\n\t- Cantidad de Luciernagas: población total de luciernagas.\n\t- Alfa: valor del parámetro para el acercamiento alfa.\n\t- Gamma: valor del coeficiente de atracción.\n\nBotones de acción:\n\t- Calcular: ejecuta el algoritmo con parámetros establecidos previamente.\n\t- Paso: ejecuta iteración por iteración del algoritmo con parámetros establecidos previamente.\n\t- Pausa: pausar la ejecución del algoritmo. Para continuar la ejecución presionar Calcular o Paso.\n\t- Detener: detiene la ejecución del algoritmo.\nArea de resultados:\n\tI:Iteracion\n\tMB:Mejor Brillo\n\tBP:Brillo Promedio");
 }
 
 
-/* Función que se utiliza para correr el algoritmo sin bloquear a la GUI*/
+/* Función que se utiliza para correr el algoritmo sin bloquear a la GUI
+obtenido de la documentacion contenida en https://developer.gnome.org/gtk2/stable/*/
 static gboolean thread_func(void *algo)
 {
 
@@ -169,11 +173,11 @@ static gboolean thread_func(void *algo)
 int chequear_textboxs(GtkWidget *entry[])
 {
 
-int control=0;
+	int control=0;
 
-int tl1=gtk_entry_get_text_length(GTK_ENTRY(entry[0]));
-int tl2=gtk_entry_get_text_length(GTK_ENTRY(entry[1]));
-int tl3=gtk_entry_get_text_length(GTK_ENTRY(entry[2]));
+	int tl1=gtk_entry_get_text_length(GTK_ENTRY(entry[0]));
+	int tl2=gtk_entry_get_text_length(GTK_ENTRY(entry[1]));
+	int tl3=gtk_entry_get_text_length(GTK_ENTRY(entry[2]));
 
 	if((tl1==0)||(tl2==0)||(tl3==0))
 	{
@@ -183,11 +187,11 @@ int tl3=gtk_entry_get_text_length(GTK_ENTRY(entry[2]));
 		return 1;
 	}
 
-const char *op1=gtk_entry_get_text(GTK_ENTRY(entry[0]));
-const char *op2=gtk_entry_get_text(GTK_ENTRY(entry[1]));
-const char *res=gtk_entry_get_text(GTK_ENTRY(entry[2]));
+	const char *op1=gtk_entry_get_text(GTK_ENTRY(entry[0]));
+	const char *op2=gtk_entry_get_text(GTK_ENTRY(entry[1]));
+	const char *res=gtk_entry_get_text(GTK_ENTRY(entry[2]));
 
-int i=0;
+	int i=0;
 
 	for(i=0;i<tl1;i++)
 	{
@@ -219,19 +223,22 @@ int i=0;
 		}
 	}
 
-return control;
+	return control;
+
 }
 
+/*obtenido de la documentacion contenida en https://developer.gnome.org/gtk2/stable/*/
 void pausa_callback(GtkWidget *entry[])
 {
-//	t=0;
+
 	runthreadidle=0;
 	gtk_widget_set_sensitive(GTK_WIDGET(boton),TRUE);
 	gtk_widget_set_sensitive(GTK_WIDGET(botonstep),TRUE);
 	gtk_widget_set_sensitive(GTK_WIDGET(botonstop),TRUE);
+
 }
 
-
+/*obtenido de la documentacion contenida en https://developer.gnome.org/gtk2/stable/*/
 void detener_callback(GtkWidget *entry[])
 {
 	t=0;
@@ -242,7 +249,7 @@ void detener_callback(GtkWidget *entry[])
 	gtk_widget_set_sensitive(GTK_WIDGET(botonpausa),FALSE);
 }
 
-
+/*obtenido de la documentacion contenida en https://developer.gnome.org/gtk2/stable/*/
 void paso_callback(GtkWidget *entry[])
 {
 int control=0;
@@ -254,15 +261,14 @@ int control=0;
 
 
 	correr_algoritmo(n_it);
-//	gtk_widget_set_sensitive(GTK_WIDGET(botonstop),TRUE);
-//	gtk_widget_set_sensitive(GTK_WIDGET(boton),FALSE);
+
 }
 
-
+/*obtenido de la documentacion contenida en https://developer.gnome.org/gtk2/stable/*/
 void correr_callback(GtkWidget *entry[])
 {
 
-int control=0;
+	int control=0;
 	if(t==0)
 	{
 		if(chequear_textboxs(entry)) return;
@@ -271,7 +277,7 @@ int control=0;
 
 
 	runthreadidle=1;
-//	correr_algoritmo(numiteraciones);
+
 	gtk_widget_set_sensitive(GTK_WIDGET(boton),FALSE);
 	gtk_widget_set_sensitive(GTK_WIDGET(botonstop),TRUE);
 	gtk_widget_set_sensitive(GTK_WIDGET(botonpausa),TRUE);
@@ -286,10 +292,6 @@ void cargar_operadores(GtkWidget *entry[])
 	toperador1 = gtk_entry_get_text(GTK_ENTRY(entry[0]));
 	toperador2 = gtk_entry_get_text(GTK_ENTRY(entry[1]));
 	resultado = gtk_entry_get_text(GTK_ENTRY(entry[2]));
-
-	imprimir_salida("Operando 1: %s \n",toperador1);
-	imprimir_salida("Operando 2: %s \n",toperador2);
-	imprimir_salida("Resultado: %s \n",resultado);
 
 	//PARTE NUEVA
 	operacion = gtk_toggle_button_get_active(entry[4]); //operacion: suma o resta
@@ -307,15 +309,15 @@ void cargar_operadores(GtkWidget *entry[])
 	gama = gtk_adjustment_get_value(entry[9]); //gamma
 
 	plotdatos = fopen("plotdatos.dat","w");
-//	plotdatos2 = fopen("plotdatos2.dat","w");
 
 	procesar_letras();
 	iniciar_luciernagas(n_luc);
-//	correr_algoritmo(n_it);
+
 	mostrar_ventana_resultados();
 
 	imprimir_salida("I:Iteracion\nMB:Mejor Brillo\nBP:Brillo Promedio\n");
 	imprimir_salida("I	MB	BP\n");
+	
 
 	//FIN PARTE NUEVA
 
@@ -346,8 +348,6 @@ void procesar_letras()
 	strcat(temp_letras,toperador1);
 	strcat(temp_letras,toperador2);
 	strcat(temp_letras,resultado);
-
-	//printf("ARRAY TEMPORAL: %s\n",temp_letras);
 
 	/*busco letras dentro del string que no se repiten*/
 	
@@ -390,9 +390,6 @@ void procesar_letras()
 
 		}		
 	
-	//printf("ARRAY TEMPORAL FILTRADO: %s\n",temp_letras);
-	imprimir_salida("LETRAS DEL ARRAY %s\n",array_letras);
-
 
 	/*calculo cantidad de letras utilizadas*/
 	for(i=0;i < 10;i++)
@@ -405,12 +402,8 @@ void procesar_letras()
 
 	}
 
-	imprimir_salida("LONGITUD ARRAY LETRAS QUE NO SE REPITEN: %d\n",cant_letras);
-
-	//printf("cantidad de letras que no se repiten: %d\n",strlen(array_letras));
 
 	free(temp_letras);
-
 
 }
 
@@ -449,18 +442,13 @@ void correr_algoritmo(int numiteraciones)
 	/*variables de control*/
 	int i,j,k;
 	
-	/*variable de control para el numero de corridas*/
-	//int t=0;
 
-	/*puntero al array de distancias*/
-	//int *distancia;
-
+	/*variables donde se guardan los operandos para mostrarlos en la salida*/
 	int op1,op2,op3;
 
 
 
 	/*algoritmo firefly*/
-//	while(t < numiteraciones)
 	if(t < numiteraciones)
 	{
 
@@ -520,20 +508,7 @@ void correr_algoritmo(int numiteraciones)
 			
 		}
 
-		/*Se imprime luciernaga de mas brillo por iteracion*/
-		/*imprimir_salida("\n");
-		imprimir_salida("Iteracion numero: %d\n",t);
-		imprimir_salida("Luciernaga de mayor brillo: ");	
-		for(i=0;i < 10;i++)
-		{					
-
-			imprimir_salida("%d ",luciernagas[0].luc_numeros[i]);
-
-			
-		}
-		imprimir_salida("\n");
-		imprimir_salida("Brillo: %d",luciernagas[0].luc_intensidad);
-		imprimir_salida("\n");*/
+		
 
 		/*se almacena sumatoria de brillos por iteracion*/
 		for(i=0;i < n_luc;i++)
@@ -547,14 +522,7 @@ void correr_algoritmo(int numiteraciones)
 			prom_brillo = (float)prom_brillo/(float)n_luc;
 
 			fprintf(plotdatos,"%d	%d	%f\n",t,luciernagas[0].luc_intensidad, prom_brillo);
-//			fprintf(plotdatos2,"%d	%f\n",t,prom_brillo);
 
-
-			/*se imprime brillo promedio por iteracion*/
-			/*imprimir_salida("Brillo promedio: %f\n",prom_brillo);
-			imprimir_salida("\n");*/
-
-			//imprimir_salida("Iteracion	Mejor Brillo	Brillo Promedio");
 			imprimir_salida("%d	%d	%f\n",t,luciernagas[0].luc_intensidad,prom_brillo);
 	
 			/*se calcula brillo total promedio*/
@@ -567,9 +535,12 @@ void correr_algoritmo(int numiteraciones)
 		t++;
 
 	}else{
+
 			runthreadidle=0;
 			/*impresion de resultados finales*/
 			imprimir_salida("\n");
+			imprimir_salida("LETRAS DEL ARRAY %s\n",array_letras);
+			imprimir_salida("LONGITUD ARRAY LETRAS QUE NO SE REPITEN: %d\n",cant_letras);
 			imprimir_salida("RESULTADO FINAL: "); 
 			for(i=0;i < 10;i++)
 			{					
@@ -603,15 +574,14 @@ void correr_algoritmo(int numiteraciones)
 			total_prom_br = total_prom_br/(float)numiteraciones;
 
 			fclose(plotdatos);
-//			fclose(plotdatos2);
+
 
 			/*llamado a gnuplot para graficar*/
 			system("gnuplot5 -persistent script.scp");
-//			system("gnuplot -persistent script2.scp");
+
 
 		
 			/*se liberan punteros y se ponen variables al estado inicial*/
-			//free(distancia);
 			free(luciernagas);
 			t=0;
 			gtk_widget_set_sensitive(GTK_WIDGET(boton),TRUE);
@@ -678,26 +648,14 @@ void acercar_luciernaga(int array_mayor[10],int array_menor[10],int distancia[10
 
 	int array_destino[10];/*array temporal destino del acercamiento*/
 	
-	/*calculo distancia total*/
-	for(i=0;i < cant_letras;i++)
-	{
-
-		dist = dist + distancia[i];
-
-	}
-
-	/*calculo beta*/
-	//beta = 1 / (1 + (gama*pow(dist,2)));
-
 	/*- si son iguales los numeros en la misma posicion en array mayor y menor, lleno array destino con ese numero
-	  - si random es menor a beta lleno posicion de array_destino con array menor, si no con array mayor
+	  - si random es menor a beta lleno posicion de array_destino con array mayor, si no con array menor
 	  - si el numero ya se uso, marco posicion con un -1 y paso a la siguiente posicion */	
 
 	for(i=0;i < 10;i++)
 	{
 
 		/*si los valores de las 2 luciernagas en la posicion son iguales, se asigna array destino con ese valor*/
-		//if(array_mayor[i] == array_menor[i])
 		if(distancia[i] == 0)
 		{
 
@@ -710,10 +668,8 @@ void acercar_luciernaga(int array_mayor[10],int array_menor[10],int distancia[10
 
 			beta = 1 / (1 + (gama * pow(distancia[i],2)));
 
-			//printf("%f %f %d %d\n",nrandom,beta,distancia[i],i);
-
-			/*si el numero aleatorio es menor al beta, se asigna el valor de la luciernaga de menor brillo,
-			  sino se asigna el valor de la luciernaga de mayor brillo.
+			/*si el numero aleatorio es menor al beta, se asigna el valor de la luciernaga de mayor brillo,
+			  sino se asigna el valor de la luciernaga de menor brillo.
 			*/
 			if(nrandom < beta)
 			{

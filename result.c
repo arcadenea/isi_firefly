@@ -8,6 +8,8 @@ GtkTextBuffer *buffer;
 GtkWidget *window;
 GtkWidget *swindow;
 
+/*muestra ventana de resultados
+obtenido de la documentacion contenida en https://developer.gnome.org/gtk2/stable/*/
 void mostrar_ventana_resultados()
 {
 	GtkTextIter iteri;
